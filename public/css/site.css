@@ -636,3 +636,47 @@ textarea { min-height: 140px; resize: vertical; }
 /* Event-page banners: tint is 82%+ everywhere text can sit (gold label needs >= 72%) */
 .event-hero::after { background: linear-gradient(0deg, rgba(31,11,61,.96) 0%, rgba(31,11,61,.86) 50%, rgba(31,11,61,.82) 100%); }
 .event-hero h1, .event-facts { text-shadow: 0 1px 2px rgba(20,6,40,.45); }
+
+/* ================= Hero: shading only where the text is (supersedes the heavier tint above) =================
+   Neutral plum-black shading keeps the photos' natural colours; it is darkest behind the text block,
+   fades out across the image, and adds a little at the top (menu) and bottom (buttons). */
+.hero::after {
+  background:
+    linear-gradient(90deg, rgba(74,31,134,.20) 0%, rgba(74,31,134,0) 55%),
+    linear-gradient(90deg, rgba(18,6,32,.70) 0%, rgba(18,6,32,.60) 38%, rgba(18,6,32,.28) 58%, rgba(18,6,32,.06) 78%, rgba(18,6,32,0) 100%),
+    linear-gradient(0deg, rgba(18,6,32,.50) 0%, rgba(18,6,32,0) 34%),
+    linear-gradient(180deg, rgba(18,6,32,.45) 0%, rgba(18,6,32,0) 18%);
+}
+.hero .eyebrow { color: #F0D68E; }
+.next-card { background: rgba(18,6,32,.62); }
+@media (max-width: 900px) {
+  .hero::after {
+    background:
+      linear-gradient(0deg, rgba(18,6,32,.86) 0%, rgba(18,6,32,.70) 45%, rgba(18,6,32,.50) 80%, rgba(18,6,32,.55) 100%),
+      linear-gradient(90deg, rgba(74,31,134,.18), rgba(74,31,134,0) 70%);
+  }
+}
+
+/* ================= Hero shading, tuned by measurement on the real photos =================
+   Darkest only behind the text block (held to the end of the headline, then fading out),
+   a slim band behind the menu, a little at the bottom for the buttons. The right side of
+   the photo stays ~93% clear so the elders' faces and colours come through. */
+.hero::after {
+  background:
+    linear-gradient(90deg, rgba(74,31,134,.20) 0%, rgba(74,31,134,0) 55%),
+    linear-gradient(90deg, rgba(18,6,32,.70) 0%, rgba(18,6,32,.64) 50%, rgba(18,6,32,.26) 66%, rgba(18,6,32,.05) 82%, rgba(18,6,32,0) 100%),
+    linear-gradient(0deg, rgba(18,6,32,.50) 0%, rgba(18,6,32,0) 34%),
+    linear-gradient(180deg, rgba(18,6,32,.90) 0px, rgba(18,6,32,0) 140px);
+}
+.next-card { background: rgba(18,6,32,.70); }
+.next-card .label { color: #F0D68E; }
+.home .site-header:not(.scrolled) .nav a:not(.btn), .home .site-header:not(.scrolled) .brand-name { text-shadow: 0 1px 2px rgba(20,6,40,.5); }
+@media (max-width: 900px) {
+  /* Tablets & phones: text spans the full width, so shading is even; measured on the real photos */
+  .hero::after {
+    background:
+      linear-gradient(90deg, rgba(74,31,134,.18) 0%, rgba(74,31,134,0) 70%),
+      linear-gradient(0deg, rgba(18,6,32,.86) 0%, rgba(18,6,32,.62) 45%, rgba(18,6,32,.66) 78%, rgba(18,6,32,.66) 100%),
+      linear-gradient(180deg, rgba(18,6,32,.90) 0px, rgba(18,6,32,0) 150px);
+  }
+}
