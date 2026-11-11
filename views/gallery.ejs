@@ -11,9 +11,30 @@
     <% if (!media.length) { %>
       <div class="empty"><h3><%= type === 'videos' ? 'Videos are on their way' : 'Our gallery is filling up' %></h3><p>We are adding photos and videos from our gatherings. Check back soon.</p></div>
     <% } else { %>
-      <div class="masonry" data-lb-group>
-        <% media.forEach((m) => { %><%- include('partials/media-tile', { m }) %><% }) %>
+      <%
+        // Group by gathering (newest first); photos not tied to a gathering come last.
+        const groups = [];
+        for (const m of media) {
+          const key = m.event_slug || '_more';
+          let g = groups.find((x) => x.key === key);
+          if (!g) { g = { key, title: m.event_title, slug: m.event_slug, date: m.start_date, items: [] }; groups.push(g); }
+          g.items.push(m);
+        }
+        groups.sort((a, b) => (a.key === '_more') - (b.key === '_more') || String(b.date || '').localeCompare(String(a.date || '')));
+      %>
+      <% if (groups.length > 1) { %><p class="muted gallery-note"><%= groups.filter(g => g.key !== '_more').length %> gatherings documented, newest first. Tap any photo to see it full size.</p><% } %>
+      <% groups.forEach((g) => { %>
+      <div class="gallery-group">
+        <div class="gallery-head">
+          <% if (g.key === '_more') { %><h2>More moments</h2>
+          <% } else { %><div><span class="when"><%= h.weekday(g.date) %>, <%= h.fmtDate(g.date) %></span><h2><%= g.title %></h2></div>
+            <a class="btn btn-line btn-sm" href="/events/<%= g.slug %>">About this gathering <%- icon('arrow') %></a><% } %>
+        </div>
+        <div class="masonry" data-lb-group>
+          <% g.items.forEach((m) => { %><%- include('partials/media-tile', { m }) %><% }) %>
+        </div>
       </div>
+      <% }) %>
     <% } %>
   </div>
 </section>

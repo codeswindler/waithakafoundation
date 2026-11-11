@@ -20,7 +20,7 @@ process.env.ADMIN_PASSWORD = 'first-test-pass-123';
 
 const sharp = require('sharp');
 const { createApp } = require('../src/app');
-const { ensureAdmin, seedContent, importGallery } = require('../src/seed');
+const { ensureAdmin, seedContent, importGallery, importEvents } = require('../src/seed');
 const db = require('../src/db');
 
 let server, base;
@@ -61,6 +61,7 @@ before(async () => {
   await ensureAdmin();
   await seedContent();
   await importGallery();
+  await importEvents();
   const app = await createApp();
   await new Promise((res) => { server = app.listen(0, res); });
   base = `http://127.0.0.1:${server.address().port}`;
@@ -307,9 +308,28 @@ test('gallery photos import exactly once, even when two imports run at the same 
   assert.equal(a + b, list.length, 'each photo imported by exactly one of the two runs');
   assert.equal(Number((await db.get('SELECT COUNT(*) c FROM media')).c), before + list.length);
   assert.equal(await importGallery(), 0, 'a later restart imports nothing new');
-  const dup = await db.get('SELECT COUNT(*) c FROM (SELECT title FROM media WHERE kind="image" GROUP BY title HAVING COUNT(*) > 1) x');
-  assert.equal(Number(dup.c), 0, 'no duplicate photos');
+  for (const p of list) assert.equal(Number((await db.get('SELECT COUNT(*) c FROM media WHERE title=? AND event_id IS NULL', p.title)).c), 1, `exactly one copy of "${p.title}"`);
   const home = await (await fetch(base + '/')).text();
   assert.ok((home.match(/class="slide/g) || []).length >= 3, 'homepage slideshow has several photos');
   assert.ok(home.includes('data-fader') && (home.match(/class="fade-slide/g) || []).length >= 3, 'homepage has the cross-fading moments showcase');
+});
+
+test('real past gatherings are imported once with their photos, replacing invented examples', async () => {
+  const list = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'seed', 'gallery', 'events', 'events.json'), 'utf8'));
+  const evs = await db.all("SELECT * FROM events WHERE slug LIKE 'fellowship-gathering-%' ORDER BY start_date");
+  assert.equal(evs.length, list.length);
+  for (const e of evs) {
+    const n = Number((await db.get('SELECT COUNT(*) c FROM media WHERE event_id=?', e.id)).c);
+    assert.equal(n, list.find((x) => x.date === e.start_date).photos.length, `${e.start_date} photos`);
+    assert.ok(e.cover_media_id, 'has a cover photo');
+    assert.equal(e.sample, 1, 'flagged for the team to check');
+  }
+  for (const slug of ['monthly-fellowship-gathering-october-2026', 'health-check-up-and-referral-day-september-2026']) {
+    assert.equal(await db.get('SELECT id FROM events WHERE slug=?', slug), undefined, `invented example ${slug} removed`);
+  }
+  assert.equal(await importEvents(), 0, 'a restart adds nothing twice');
+  const page = await (await fetch(base + '/events')).text();
+  assert.ok(page.includes('Fellowship gathering: April 2026') && page.includes('Fellowship gathering: 7 December 2022'));
+  const one = await (await fetch(base + '/events/' + evs[0].slug)).text();
+  assert.ok((one.match(/data-lb="image"/g) || []).length >= list[0].photos.length, 'event page shows its photos');
 });

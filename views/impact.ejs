@@ -7,7 +7,7 @@
     <div class="stat"><b data-count="<%= stats.eventsHeld %>"><%= stats.eventsHeld %></b><span>Gatherings documented on this site</span></div>
     <% if (stats.attendance) { %><div class="stat"><b data-count="<%= stats.attendance %>"><%= stats.attendance %></b><span>Total attendance at documented gatherings</span></div><% } %>
     <div class="stat"><b data-count="<%= stats.photos %>"><%= stats.photos %></b><span>Photos from our work</span></div>
-    <% if (!stats.attendance) { %><div class="stat"><b data-count="<%= stats.videos %>"><%= stats.videos %></b><span>Videos</span></div><% } %>
+    <% if (!stats.attendance && stats.videos) { %><div class="stat"><b data-count="<%= stats.videos %>"><%= stats.videos %></b><span>Videos</span></div><% } else if (!stats.attendance) { %><div class="stat"><b><%= s.stat_since %></b><span><%= s.stat_since_label %></span></div><% } %>
   </div>
 </section>
 

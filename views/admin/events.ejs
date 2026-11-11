@@ -13,7 +13,7 @@
         <td>
           <% if (!e.published) { %><span class="pill">Hidden</span><% } else { %><span class="pill ok">Live</span><% } %>
           <% if (e.featured) { %><span class="pill gold">Featured</span><% } %>
-          <% if (e.sample) { %><span class="pill warn" title="Created as an example at setup. Edit it with real details, or delete it.">Example</span><% } %>
+          <% if (e.sample) { %><span class="pill warn" title="Added at setup: open it, check the details and save.">Check details</span><% } %>
         </td>
         <td class="nowrap right"><a class="btn sm" href="/admin/events/<%= e.id %>">Edit</a> <% if (e.published) { %><a class="btn sm ghost" href="/events/<%= e.slug %>" target="_blank">View</a><% } %></td>
       </tr>

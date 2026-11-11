@@ -82,7 +82,7 @@ router.get('/', wrap(async (req, res) => {
     { ok: !!s.email || !!s.phone, text: 'Add the foundation\'s phone number and email', href: '/admin/settings#contact' },
     { ok: !!s.mpesa_paybill || !!s.bank_details, text: 'Add M-Pesa Paybill or bank details so people can give', href: '/admin/settings#giving' },
     { ok: !!h.num(s.campaign_goal), text: 'Set the land campaign target (and amount raised so far)', href: '/admin/settings#campaign' },
-    { ok: sampleEvents.length === 0, text: sampleEvents.length ? `Replace or confirm ${sampleEvents.length} example event${sampleEvents.length > 1 ? 's' : ''} created at setup` : 'Example events reviewed', href: '/admin/events' },
+    { ok: sampleEvents.length === 0, text: sampleEvents.length ? `Check the details of ${sampleEvents.length} event${sampleEvents.length > 1 ? 's' : ''} added at setup (venue, attendance, what was achieved)` : 'Events added at setup have been checked', href: '/admin/events' },
     { ok: mediaTotal >= 6, text: 'Upload photos and videos from past gatherings (aim for 6+)', href: '/admin/media' },
     { ok: team > 0, text: 'Introduce the Board of Directors and Executive Officer', href: '/admin/team' },
     { ok: !!(s.facebook || s.instagram || s.youtube || s.x || s.tiktok), text: 'Link the foundation\'s social media pages', href: '/admin/settings#social' },

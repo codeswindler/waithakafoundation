@@ -1,7 +1,7 @@
 <%- include('_head', { actions: !e.id ? '' : e.published ? `<a class="btn ghost" href="/events/${e.slug}" target="_blank">View on website</a>` : '<span class="pill">Hidden draft: not on the website yet</span>' }) %>
 <% const isPast = e.start_date && e.start_date < h.today(); const images = media.filter(m => m.kind === 'image'); %>
 <% if (errors) { %><div class="flash warn"><% errors.forEach((x) => { %><div><%= x %></div><% }) %></div><% } %>
-<% if (e.sample) { %><div class="flash info">This is an <b>example event</b> created at setup so the website was not empty. Change it to a real event and save (the label disappears), or delete it.</div><% } %>
+<% if (e.sample) { %><div class="flash info"><b>Please check this event.</b> It was added when the website was set up, from the foundation's brief or photo folders, so only the basics are filled in. Correct anything wrong, add what's missing (venue, attendance, what was achieved) and save; the reminder then disappears. If it didn't happen, delete it.</div><% } %>
 
 <form method="post" action="<%= e.id ? '/admin/events/' + e.id : '/admin/events' %>" class="card form">
   <input type="hidden" name="_csrf" value="<%= csrf %>">

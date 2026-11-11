@@ -50,24 +50,9 @@ async function seedContent() {
   ];
   for (const [i, m] of ms.entries()) await run('INSERT INTO milestones(period,title,description,sort) VALUES(?,?,?,?)', m[0], m[1], m[2], i);
 
-  // Example events so the site is not empty on day one. Flagged sample=1: replace with real ones in admin.
+  // Upcoming examples so the calendar is not empty on day one. Flagged sample=1: confirm or replace in admin.
+  // (Real past gatherings come from seed/gallery/events via importEvents.)
   const ev = [
-    {
-      slug: 'monthly-fellowship-gathering-october-2026', title: 'Monthly Fellowship & Wellness Gathering', date: '2026-10-17', t1: '10:00', t2: '15:00',
-      venue: 'Community hall, Kabuku, Limuru',
-      summary: 'Our elders came together for fellowship, song, a shared meal and health checks, and went home with food and essential supplies.',
-      body: 'Our monthly gathering brought members together for an afternoon of fellowship, conversation and listening.\n\nVolunteers and facilitators led the programme, health workers carried out check-ups, and every member received food stuff and essential home supplies to take home. Transport was arranged for members who cannot walk to the venue.',
-      ach: 'Fellowship, listening and emotional support sessions\nHealth check-ups with referrals where needed\nFood and essential home supplies distributed to members\nTransport provided for elders with mobility challenges',
-      cover: photoId,
-    },
-    {
-      slug: 'health-check-up-and-referral-day-september-2026', title: 'Health Check-up & Referral Day', date: '2026-09-19', t1: '09:00', t2: '14:00',
-      venue: 'Kabuku, Limuru',
-      summary: 'Free health screening for members, with referrals to health facilities and follow-up for elders living with chronic illness.',
-      body: 'Health and wellness is one of the foundation\'s three core programmes. At this gathering members received basic health checks, advice, and referrals to nearby health facilities.\n\nMembers living with chronic illnesses were registered for follow-up support.',
-      ach: 'Basic health screening for members\nReferrals to health facilities\nFollow-up plan for members with chronic illness',
-      cover: null,
-    },
     {
       slug: 'land-fundraiser-waithaka-foundation-complex', title: 'Fundraiser: Land for the Waithaka Foundation Complex', date: '2026-11-28', t1: '10:00', t2: '16:00',
       venue: 'Limuru, Kiambu County',
@@ -86,7 +71,6 @@ async function seedContent() {
   for (const e of ev) {
     const id = (await run(`INSERT INTO events(slug,title,start_date,start_time,end_time,venue,summary,body,achievements,cover_media_id,featured,sample)
       VALUES(?,?,?,?,?,?,?,?,?,?,?,1)`, e.slug, e.title, e.date, e.t1, e.t2, e.venue, e.summary, e.body, e.ach, e.cover, e.featured || 0)).insertId;
-    if (e.cover) await run('UPDATE media SET event_id=? WHERE id=?', id, e.cover);
   }
   return true;
 }
@@ -132,4 +116,65 @@ async function importGallery() {
   return n;
 }
 
-module.exports = { ensureAdmin, seedContent, importGallery };
+// Invented past examples from the first version of the site; removed once real gatherings exist,
+// but only if nobody has edited them (editing clears the sample flag).
+const INVENTED_PAST_EXAMPLES = ['monthly-fellowship-gathering-october-2026', 'health-check-up-and-referral-day-september-2026'];
+
+/**
+ * Creates the foundation's real past gatherings from seed/gallery/events/events.json, each with its photos.
+ * Runs once per gathering (remembered in settings), safe if two processes start together.
+ */
+async function importEvents() {
+  const dir = path.join(__dirname, '..', 'seed', 'gallery', 'events');
+  const listFile = path.join(dir, 'events.json');
+  if (!fs.existsSync(listFile)) return 0;
+  const list = JSON.parse(fs.readFileSync(listFile, 'utf8'));
+  const conn = await getPool().getConnection();
+  let made = 0;
+  try {
+    const [[lock]] = await conn.query("SELECT GET_LOCK('waithaka_import_gallery', 120) AS ok");
+    if (!lock.ok) return 0;
+    const row = await get("SELECT svalue FROM settings WHERE skey='_imported_events'");
+    const done = new Set(row ? JSON.parse(row.svalue) : []);
+    const tmp = path.join(UPLOAD_DIR, 'tmp');
+    fs.mkdirSync(tmp, { recursive: true });
+    for (const ev of list) {
+      if (done.has(ev.date)) continue;
+      let slug = ('fellowship-gathering-' + ev.date).toLowerCase();
+      if (await get('SELECT id FROM events WHERE slug=?', slug)) slug += '-2';
+      const { insertId: eventId } = await run(`INSERT INTO events(slug,title,start_date,summary,body,achievements,published,sample)
+        VALUES(?,?,?,?,?,'',1,1)`, slug, ev.title, ev.date, ev.summary || '', ev.body || '');
+      let cover = null;
+      for (const [i, p] of (ev.photos || []).entries()) {
+        const src = path.join(dir, p.file);
+        if (!fs.existsSync(src)) continue;
+        const copy = path.join(tmp, 'event-' + Date.now() + '-' + i);
+        fs.copyFileSync(src, copy);
+        const r = await processImage(copy);
+        const { insertId } = await run("INSERT INTO media(kind,file,thumb,title,caption,event_id,featured,width,height,sort) VALUES('image',?,?,?,?,?,?,?,?,?)",
+          r.file, r.thumb, p.title || '', p.caption || '', eventId, p.featured ? 1 : 0, r.width, r.height, i);
+        if (!cover) cover = insertId;
+      }
+      if (cover) await run('UPDATE events SET cover_media_id=? WHERE id=?', cover, eventId);
+      done.add(ev.date);
+      await setSetting('_imported_events', JSON.stringify([...done]));
+      made++;
+    }
+    if (made) {
+      console.log(`  Added ${made} past gathering${made > 1 ? 's' : ''} with photos.`);
+      // Real gatherings now document the track record: retire the invented examples if untouched.
+      for (const slug of INVENTED_PAST_EXAMPLES) {
+        const e = await get('SELECT id FROM events WHERE slug=? AND sample=1', slug);
+        if (!e) continue;
+        await run('UPDATE media SET event_id=NULL WHERE event_id=?', e.id);
+        await run('DELETE FROM events WHERE id=?', e.id);
+      }
+    }
+  } finally {
+    await conn.query("SELECT RELEASE_LOCK('waithaka_import_gallery')").catch(() => {});
+    conn.release();
+  }
+  return made;
+}
+
+module.exports = { ensureAdmin, seedContent, importGallery, importEvents };

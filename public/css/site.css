@@ -719,3 +719,12 @@ textarea { min-height: 140px; resize: vertical; }
   .hero-media::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 92px; z-index: 5; pointer-events: none;
     background: linear-gradient(180deg, rgba(42,16,80,0) 0%, rgba(42,16,80,.85) 70%, #2A1050 100%); }
 }
+
+/* Gallery grouped by gathering */
+.gallery-note { margin: -6px 0 26px; }
+.gallery-group { margin-bottom: 56px; }
+.gallery-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.gallery-head h2 { font-size: clamp(1.35rem, 2.6vw, 1.75rem); margin: 0; }
+.gallery-head .when { display: block; font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--clay); margin-bottom: 4px; }
+.gallery-group .masonry { columns: 3 260px; }
+@media (max-width: 760px) { .gallery-group { margin-bottom: 40px; } .gallery-group .masonry { columns: 2 140px; column-gap: 10px; } .gallery-group .masonry .tile { margin-bottom: 10px; } .gallery-head .btn { width: auto; min-height: 40px; } }
