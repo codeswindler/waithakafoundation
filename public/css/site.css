@@ -604,3 +604,35 @@ textarea { min-height: 140px; resize: vertical; }
 }
 @media (prefers-reduced-motion: reduce) { .fade-slide img { transition: none; transform: none; } .fade-slide.on.fading { animation-duration: .6s; } }
 @media (max-width: 760px) { .hero:has(.hero-dots) .hero-inner { padding-bottom: 54px; } }
+
+/* ================= Hero readability over changing photos =================
+   Layering: photos (z0) < purple tint (z1) < text (z2) < slideshow dots (z3).
+   Tint strength is set from the worst case (a pure white patch of photo behind text):
+   white body text needs >= 57% tint, the small gold label >= 72%. Wherever text sits
+   the tint is 78%+; it eases off only where there is no text. */
+.hero-media { z-index: 0; }
+.hero::after { z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(31,11,61,.86) 0%, rgba(31,11,61,.80) 52%, rgba(31,11,61,.80) 60%, rgba(31,11,61,.52) 72%, rgba(31,11,61,.34) 100%),
+    linear-gradient(0deg, rgba(31,11,61,.55) 0%, rgba(31,11,61,0) 40%); }
+.hero-inner { z-index: 2; }
+.hero-dots { z-index: 3; }
+.hero h1, .hero-lede, .hero .eyebrow { text-shadow: 0 1px 2px rgba(20,6,40,.45), 0 2px 18px rgba(20,6,40,.35); }
+/* The event card sits over the brighter side of the photo, so it carries its own dark backing */
+.next-card { background: rgba(31,11,61,.66); border-color: rgba(226,194,106,.28); }
+.countdown div { background: rgba(255,255,255,.08); }
+@media (max-width: 900px) {
+  /* Text spans the full width on tablets and phones, so the tint is even and strong throughout */
+  .hero::after { background: linear-gradient(0deg, rgba(31,11,61,.92) 0%, rgba(31,11,61,.84) 45%, rgba(31,11,61,.80) 100%); }
+}
+/* Moments captions: the fade behind the words is 75%+ dark wherever text sits (white text needs >= 57%) */
+.fade-cap { padding-top: 64px; background: linear-gradient(0deg, rgba(24,8,48,.9) 0%, rgba(24,8,48,.76) 62%, rgba(24,8,48,0) 100%); }
+.fade-cap b, .fade-cap span { text-shadow: 0 1px 2px rgba(20,6,40,.5); }
+@media (max-width: 760px) { .fade-cap { padding-top: 44px; } }
+/* Inner-page banners: photo is a faint texture on purple; text kept at near-full white */
+.page-hero.has-img::before { opacity: .2; }
+.page-hero p { color: rgba(255,255,255,.94); }
+.crumbs, .crumbs a { color: rgba(255,255,255,.9); }
+/* Event-page banners: tint is 82%+ everywhere text can sit (gold label needs >= 72%) */
+.event-hero::after { background: linear-gradient(0deg, rgba(31,11,61,.96) 0%, rgba(31,11,61,.86) 50%, rgba(31,11,61,.82) 100%); }
+.event-hero h1, .event-facts { text-shadow: 0 1px 2px rgba(20,6,40,.45); }
