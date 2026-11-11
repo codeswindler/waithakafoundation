@@ -1,7 +1,13 @@
 <%- include('partials/head', { bodyClass: 'home' }) %>
 
 <section class="hero" style="padding:0">
-  <div class="hero-media"><% if (s.hero_image) { %><img src="/uploads/<%= s.hero_image %>" srcset="<%= h.srcset(s.hero_image) %>" sizes="100vw" alt="Elders of the Waithaka Foundation at a fellowship gathering" fetchpriority="high"><% } %></div>
+  <div class="hero-media<%= slides.length > 1 ? ' slideshow' : '' %>" aria-hidden="true">
+    <% slides.forEach((sl, i) => { %>
+      <% if (i === 0) { %><img class="slide on" src="/uploads/<%= sl.file %>" srcset="<%= h.srcset(sl.file) %>" sizes="100vw" alt="" fetchpriority="high">
+      <% } else { %><img class="slide" data-src="/uploads/<%= sl.file %>" data-srcset="<%= h.srcset(sl.file) %>" sizes="100vw" alt=""><% } %>
+    <% }) %>
+  </div>
+  <% if (slides.length > 1) { %><div class="hero-dots" role="group" aria-label="Background photos"><% slides.forEach((sl, i) => { %><button type="button" aria-label="Show photo <%= i + 1 %> of <%= slides.length %>"<%- i === 0 ? ' aria-current="true"' : '' %>></button><% }) %></div><% } %>
   <div class="wrap hero-inner">
     <div>
       <span class="eyebrow"><%= s.tagline %></span>
@@ -101,14 +107,21 @@
 <% } %>
 
 <% if (featuredMedia.length) { %>
-<section class="bg-paper">
+<section class="bg-paper moments">
   <div class="wrap">
     <div class="head-row">
-      <div class="section-head reveal"><span class="eyebrow">Gallery</span><h2>Moments with our elders</h2></div>
+      <div class="section-head reveal"><span class="eyebrow">Gallery</span><h2>Moments with our elders</h2><p>Fellowship, care and celebration at our monthly gatherings.</p></div>
       <a class="btn btn-line reveal" href="/gallery"><%- icon('camera') %> Open the gallery</a>
     </div>
-    <div class="gallery-strip n<%= Math.min(featuredMedia.length, 5) %>" data-lb-group>
-      <% featuredMedia.slice(0, 5).forEach((m) => { %><%- include('partials/media-tile', { m }) %><% }) %>
+    <div class="carousel" data-carousel>
+      <div class="carousel-track" data-lb-group tabindex="0" aria-label="Photos from our gatherings: swipe or use the arrows">
+        <% featuredMedia.forEach((m) => { %><div class="carousel-slide<%= m.width && m.height && m.height > m.width ? ' tall' : '' %>"><%- include('partials/media-tile', { m }) %></div><% }) %>
+      </div>
+      <div class="carousel-ctrl">
+        <button type="button" class="carousel-btn" data-dir="-1" aria-label="Previous photos"><%- icon('left') %></button>
+        <div class="carousel-progress" aria-hidden="true"><span></span></div>
+        <button type="button" class="carousel-btn" data-dir="1" aria-label="Next photos"><%- icon('right') %></button>
+      </div>
     </div>
   </div>
 </section>

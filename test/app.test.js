@@ -20,7 +20,7 @@ process.env.ADMIN_PASSWORD = 'first-test-pass-123';
 
 const sharp = require('sharp');
 const { createApp } = require('../src/app');
-const { ensureAdmin, seedContent } = require('../src/seed');
+const { ensureAdmin, seedContent, importGallery } = require('../src/seed');
 const db = require('../src/db');
 
 let server, base;
@@ -60,6 +60,7 @@ before(async () => {
   await db.init();
   await ensureAdmin();
   await seedContent();
+  await importGallery();
   const app = await createApp();
   await new Promise((res) => { server = app.listen(0, res); });
   base = `http://127.0.0.1:${server.address().port}`;
@@ -294,4 +295,21 @@ test('flash messages survive the redirect after an admin action', async () => {
   assert.equal(r.status, 302);
   r = await c.req('GET', '/admin/milestones');
   assert.ok(r.text_.includes('Milestone saved.'));
+});
+
+test('gallery photos import exactly once, even when two imports run at the same time', async () => {
+  const list = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'seed', 'gallery', 'photos.json'), 'utf8'));
+  // Simulate a fresh server: forget the import, remove those photos, then start two imports at once.
+  await db.run("DELETE FROM settings WHERE skey='_imported_photos'");
+  for (const p of list) await db.run('DELETE FROM media WHERE title=?', p.title);
+  const before = Number((await db.get('SELECT COUNT(*) c FROM media')).c);
+  const [a, b] = await Promise.all([importGallery(), importGallery()]);
+  assert.equal(a + b, list.length, 'each photo imported by exactly one of the two runs');
+  assert.equal(Number((await db.get('SELECT COUNT(*) c FROM media')).c), before + list.length);
+  assert.equal(await importGallery(), 0, 'a later restart imports nothing new');
+  const dup = await db.get('SELECT COUNT(*) c FROM (SELECT title FROM media WHERE kind="image" GROUP BY title HAVING COUNT(*) > 1) x');
+  assert.equal(Number(dup.c), 0, 'no duplicate photos');
+  const home = await (await fetch(base + '/')).text();
+  assert.ok((home.match(/class="slide/g) || []).length >= 3, 'homepage slideshow has several photos');
+  assert.ok(home.includes('data-carousel'), 'homepage has the moments carousel');
 });

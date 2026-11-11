@@ -8,7 +8,7 @@ if (fs.existsSync(envFile)) process.loadEnvFile(envFile);
 
 const { init, close } = require('./src/db');
 const { createApp } = require('./src/app');
-const { ensureAdmin, seedContent } = require('./src/seed');
+const { ensureAdmin, seedContent, importGallery } = require('./src/seed');
 
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || '0.0.0.0';
@@ -17,6 +17,7 @@ const HOST = process.env.HOST || '0.0.0.0';
   await init();
   await ensureAdmin();
   await seedContent();
+  await importGallery();
   const app = await createApp();
   const server = app.listen(PORT, HOST, () => {
     console.log(`Waithaka Foundation website running on http://localhost:${PORT}`);

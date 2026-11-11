@@ -33,11 +33,15 @@ async function stats() {
 router.get('/', wrap(async (req, res) => {
   const [featuredMedia, up, pastList, milestones, partnerList, st] = await Promise.all([
     all(`SELECT m.*, e.title AS event_title, e.slug AS event_slug FROM media m LEFT JOIN events e ON e.id=m.event_id
-      ORDER BY m.featured DESC, m.created_at DESC, m.id DESC LIMIT 8`),
+      ORDER BY m.featured DESC, m.sort, m.created_at DESC, m.id DESC LIMIT 12`),
     upcoming(3), past(3), all('SELECT * FROM milestones ORDER BY sort, id LIMIT 6'), partners(), stats(),
   ]);
+  // Hero slideshow: the chosen banner first, then wide "Show on homepage" photos (portrait shots crop badly behind text).
+  const hero = res.locals.s.hero_image;
+  const wide = await all("SELECT file, title FROM media WHERE kind='image' AND featured=1 AND width >= height * 1.25 ORDER BY sort, id LIMIT 7");
+  const slides = [...(hero ? [{ file: hero, title: '' }] : []), ...wide.filter((m) => m.file !== hero)].slice(0, 6);
   const featuredUp = up.find((e) => e.featured) || (await get(`SELECT ${EVENT_COLS} FROM ${EVENT_FROM} WHERE e.published=1 AND e.featured=1 AND e.start_date >= ? LIMIT 1`, h.today()));
-  res.render('home', { title: null, upcoming: up, next: featuredUp || up[0] || null, past: pastList, featuredMedia, milestones, partners: partnerList, stats: st });
+  res.render('home', { title: null, slides, upcoming: up, next: featuredUp || up[0] || null, past: pastList, featuredMedia, milestones, partners: partnerList, stats: st });
 }));
 
 router.get('/about', wrap(async (req, res) => {

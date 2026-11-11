@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
-const { get, run, setSetting, DATA_DIR, UPLOAD_DIR } = require('./db');
+const { get, run, setSetting, getPool, DATA_DIR, UPLOAD_DIR } = require('./db');
 const { processImage } = require('./media');
 
 /** Creates the first admin if none exists. Password comes from env or is generated and written to data/. */
@@ -91,4 +91,45 @@ async function seedContent() {
   return true;
 }
 
-module.exports = { ensureAdmin, seedContent };
+/**
+ * Imports the foundation's photos from seed/gallery (listed in photos.json) into the media library.
+ * Each photo is imported once; the list of imported files is remembered, so a photo deleted in the
+ * admin is not brought back on the next restart.
+ */
+async function importGallery() {
+  const dir = path.join(__dirname, '..', 'seed', 'gallery');
+  const listFile = path.join(dir, 'photos.json');
+  if (!fs.existsSync(listFile)) return 0;
+  const list = JSON.parse(fs.readFileSync(listFile, 'utf8'));
+  // A database lock makes this safe when two processes start at once (e.g. a PM2 reload).
+  const conn = await getPool().getConnection();
+  let n = 0;
+  try {
+    const [[lock]] = await conn.query("SELECT GET_LOCK('waithaka_import_gallery', 60) AS ok");
+    if (!lock.ok) return 0;
+    const row = await get("SELECT svalue FROM settings WHERE skey='_imported_photos'");
+    const done = new Set(row ? JSON.parse(row.svalue) : []);
+    const base = Number((await get('SELECT COALESCE(MAX(sort),0) AS m FROM media')).m) + 1;
+    const tmp = path.join(UPLOAD_DIR, 'tmp');
+    fs.mkdirSync(tmp, { recursive: true });
+    for (const [i, p] of list.entries()) {
+      const src = path.join(dir, p.file);
+      if (done.has(p.file) || !fs.existsSync(src)) continue;
+      const copy = path.join(tmp, 'import-' + Date.now() + '-' + i);
+      fs.copyFileSync(src, copy);
+      const r = await processImage(copy);
+      await run("INSERT INTO media(kind,file,thumb,title,caption,featured,width,height,sort) VALUES('image',?,?,?,?,1,?,?,?)",
+        r.file, r.thumb, p.title || '', p.caption || '', r.width, r.height, base + i);
+      done.add(p.file);
+      await setSetting('_imported_photos', JSON.stringify([...done])); // record each one immediately
+      n++;
+    }
+    if (n) console.log(`  Imported ${n} photo${n > 1 ? 's' : ''} into the gallery.`);
+  } finally {
+    await conn.query("SELECT RELEASE_LOCK('waithaka_import_gallery')").catch(() => {});
+    conn.release();
+  }
+  return n;
+}
+
+module.exports = { ensureAdmin, seedContent, importGallery };

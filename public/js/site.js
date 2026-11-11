@@ -99,6 +99,71 @@
     lb.addEventListener('touchend', function (e) { if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 50) show(idx + (dx < 0 ? 1 : -1)); sx = null; });
   }
 
+  // ---- hero slideshow: cross-fade, photos load just before they are shown ----
+  var show = d.querySelector('.hero-media.slideshow');
+  if (show) {
+    var slides = [].slice.call(show.querySelectorAll('.slide')), dots = [].slice.call(d.querySelectorAll('.hero-dots button'));
+    var cur = 0, timer = null, DELAY = 6500;
+    var load = function (img) {
+      return new Promise(function (res) {
+        if (!img.dataset.src) return res();
+        img.onload = img.onerror = function () { res(); };
+        if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+        img.src = img.dataset.src; delete img.dataset.src; delete img.dataset.srcset;
+      });
+    };
+    var go = function (n) {
+      n = (n + slides.length) % slides.length;
+      if (n === cur) return;
+      load(slides[n]).then(function () {
+        slides[cur].classList.remove('on'); slides[cur].classList.add('was');
+        var prev = slides[cur];
+        setTimeout(function () { prev.classList.remove('was'); }, 1900);
+        slides[n].classList.add('on'); cur = n;
+        dots.forEach(function (b, i) { if (i === n) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+        load(slides[(n + 1) % slides.length]); // warm up the next one
+      });
+    };
+    var play = function () { clearInterval(timer); if (!reduce) timer = setInterval(function () { if (!d.hidden) go(cur + 1); }, DELAY); };
+    dots.forEach(function (b, i) { b.addEventListener('click', function () { go(i); play(); }); });
+    window.addEventListener('load', function () { setTimeout(function () { load(slides[1]); }, 1200); });
+    play();
+  }
+
+  // ---- Moments carousel: arrows, progress, gentle autoplay that pauses while people interact ----
+  d.querySelectorAll('[data-carousel]').forEach(function (car) {
+    var track = car.querySelector('.carousel-track'), bar = car.querySelector('.carousel-progress span');
+    var items = [].slice.call(track.children), idle = true, visible = false, resumeT = null;
+    var maxScroll = function () { return track.scrollWidth - track.clientWidth; };
+    var update = function () {
+      var m = maxScroll(), x = track.scrollLeft;
+      if (bar) bar.style.width = (m > 0 ? Math.max(8, Math.round((x / m) * 100)) : 100) + '%';
+      car.classList.toggle('at-end', x >= m - 4);
+      car.querySelector('.carousel-ctrl').hidden = m <= 4;
+    };
+    var pending = null, pendingAt = 0;
+    var step = function (dir) {
+      // While a smooth scroll is still moving, continue from where it is heading (so quick taps add up)
+      var x = (pending != null && Date.now() - pendingAt < 600) ? pending : track.scrollLeft, m = maxScroll();
+      if (dir > 0 && x >= m - 4) { pending = 0; pendingAt = Date.now(); track.scrollTo({ left: 0 }); return; }
+      if (dir < 0 && x <= 4) { pending = m; pendingAt = Date.now(); track.scrollTo({ left: m }); return; }
+      var left = track.getBoundingClientRect().left;
+      var offs = items.map(function (el) { return el.getBoundingClientRect().left - left + x; });
+      var target = dir > 0 ? offs.find(function (o) { return o > x + 8; }) : offs.filter(function (o) { return o < x - 8; }).pop();
+      pending = target == null ? (dir > 0 ? m : 0) : Math.min(target, m); pendingAt = Date.now();
+      track.scrollTo({ left: pending });
+    };
+    car.querySelectorAll('.carousel-btn').forEach(function (b) { b.addEventListener('click', function () { pause(); step(+b.dataset.dir); }); });
+    track.addEventListener('scroll', function () { window.requestAnimationFrame(update); }, { passive: true });
+    track.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight') { e.preventDefault(); pause(); step(1); } if (e.key === 'ArrowLeft') { e.preventDefault(); pause(); step(-1); } });
+    function pause() { idle = false; clearTimeout(resumeT); resumeT = setTimeout(function () { idle = true; }, 9000); }
+    ['pointerenter', 'touchstart', 'focusin'].forEach(function (ev) { car.addEventListener(ev, pause, { passive: true }); });
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { visible = en[0].isIntersecting; }, { threshold: 0.4 }).observe(car);
+    if (!reduce) setInterval(function () { if (idle && visible && !d.hidden && !d.querySelector('.lb.open')) step(1); }, 4500);
+    window.addEventListener('resize', update);
+    update();
+  });
+
   // ---- "swipe for more" hint on phone carousels that overflow ----
   function hints() {
     d.querySelectorAll('.swipe').forEach(function (row) {
