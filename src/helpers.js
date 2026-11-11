@@ -89,6 +89,13 @@ function waNumber(n) {
   return d;
 }
 
+/** srcset for an uploaded photo: phones get the 640px copy, larger screens the 1800px one. */
+function srcset(file) {
+  if (!file || !/-lg\.webp$/.test(file)) return '';
+  return `/uploads/${file.replace(/-lg\.webp$/, '-sm.webp')} 640w, /uploads/${file} 1800w`;
+}
+function smallOf(file) { return file && /-lg\.webp$/.test(file) ? file.replace(/-lg\.webp$/, '-sm.webp') : file; }
+
 function isEmail(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').trim()); }
 
-module.exports = { today, fmtDate, fmtDay, fmtMon, fmtYear, weekday, fmtTime, timeRange, slugify, esc, paras, lines, money, num, token, excerpt, isEmail, safeUrl, icsFor, waNumber, MONTHS };
+module.exports = { today, fmtDate, fmtDay, fmtMon, fmtYear, weekday, fmtTime, timeRange, slugify, esc, paras, lines, money, num, token, excerpt, isEmail, safeUrl, icsFor, waNumber, srcset, smallOf, MONTHS };

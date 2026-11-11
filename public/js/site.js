@@ -6,7 +6,12 @@
 
   // ---- header & mobile menu ----
   var header = d.querySelector('.site-header');
-  var onScroll = function () { if (header) header.classList.toggle('scrolled', window.scrollY > 30); };
+  var mbar = d.querySelector('.mbar');
+  var onScroll = function () {
+    var y = window.scrollY;
+    if (header) header.classList.toggle('scrolled', y > 30);
+    if (mbar) mbar.classList.toggle('show', y > 260);
+  };
   onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
   var btn = d.querySelector('.menu-btn'), nav = d.getElementById('nav');
   if (btn && nav) {
@@ -76,10 +81,10 @@
     function open(tile) {
       var group = tile.closest('[data-lb-group]');
       items = Array.prototype.slice.call((group || d).querySelectorAll('[data-lb]'));
-      lastFocus = tile; lb.hidden = false; lb.classList.add('open'); d.body.style.overflow = 'hidden';
+      lastFocus = tile; lb.hidden = false; lb.classList.add('open'); d.body.style.overflow = 'hidden'; d.body.classList.add('lb-open');
       show(items.indexOf(tile)); lb.querySelector('.lb-close').focus();
     }
-    function close() { lb.classList.remove('open'); lb.hidden = true; stage.innerHTML = ''; d.body.style.overflow = ''; if (lastFocus) lastFocus.focus(); }
+    function close() { lb.classList.remove('open'); lb.hidden = true; stage.innerHTML = ''; d.body.style.overflow = ''; d.body.classList.remove('lb-open'); if (lastFocus) lastFocus.focus(); }
     d.addEventListener('click', function (e) { var t = e.target.closest('[data-lb]'); if (t) { e.preventDefault(); open(t); } });
     lb.querySelector('.lb-close').addEventListener('click', close);
     lb.querySelector('.lb-prev').addEventListener('click', function () { show(idx - 1); });
@@ -93,6 +98,22 @@
     lb.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
     lb.addEventListener('touchend', function (e) { if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 50) show(idx + (dx < 0 ? 1 : -1)); sx = null; });
   }
+
+  // ---- "swipe for more" hint on phone carousels that overflow ----
+  function hints() {
+    d.querySelectorAll('.swipe').forEach(function (row) {
+      var prev = row.previousElementSibling, has = prev && prev.classList.contains('swipe-hint');
+      var over = row.scrollWidth > row.clientWidth + 8 && window.innerWidth <= 760;
+      if (over && !has) { var p = d.createElement('p'); p.className = 'swipe-hint'; p.setAttribute('aria-hidden', 'true'); p.textContent = 'Swipe for more'; row.parentNode.insertBefore(p, row); }
+      else if (!over && has) prev.remove();
+      if (over && !row.dataset.hintBound) {
+        row.dataset.hintBound = '1';
+        row.addEventListener('scroll', function () { var h = row.previousElementSibling; if (h && h.classList.contains('swipe-hint') && row.scrollLeft > 30) h.style.visibility = 'hidden'; }, { passive: true });
+      }
+    });
+  }
+  hints();
+  window.addEventListener('resize', function () { clearTimeout(hints.t); hints.t = setTimeout(hints, 200); });
 
   // ---- year filter on past events ----
   d.querySelectorAll('[data-filter-group]').forEach(function (g) {

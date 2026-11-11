@@ -1,7 +1,7 @@
 <%- include('partials/head', { bodyClass: 'home' }) %>
 
 <section class="hero" style="padding:0">
-  <div class="hero-media"><% if (s.hero_image) { %><img src="/uploads/<%= s.hero_image %>" alt="Elders of the Waithaka Foundation at a fellowship gathering" fetchpriority="high"><% } %></div>
+  <div class="hero-media"><% if (s.hero_image) { %><img src="/uploads/<%= s.hero_image %>" srcset="<%= h.srcset(s.hero_image) %>" sizes="100vw" alt="Elders of the Waithaka Foundation at a fellowship gathering" fetchpriority="high"><% } %></div>
   <div class="wrap hero-inner">
     <div>
       <span class="eyebrow"><%= s.tagline %></span>
@@ -39,7 +39,7 @@
 <section>
   <div class="wrap split">
     <div class="photo-stack reveal">
-      <div class="main"><% if (s.hero_image) { %><img src="/uploads/<%= s.hero_image %>" alt="Elders sharing fellowship" loading="lazy"><% } %></div>
+      <div class="main"><% if (s.hero_image) { %><img src="/uploads/<%= s.hero_image %>" srcset="<%= h.srcset(s.hero_image) %>" sizes="(max-width: 900px) 92vw, 560px" alt="Elders sharing fellowship" loading="lazy"><% } %></div>
       <div class="badge"><b><%= s.stat_members %></b><span>senior citizens over 80 we walk with every month</span></div>
     </div>
     <div class="reveal d1">
@@ -59,7 +59,7 @@
       <h2>Three programmes. One monthly promise.</h2>
       <p>Every month we bring our elders together, feed them, check on their health and remind them they are loved.</p>
     </div>
-    <div class="cards-3">
+    <div class="cards-3 swipe">
       <div class="prog reveal"><span class="num">01</span><div class="ic"><%- icon('users') %></div><h3>Companionship &amp; emotional support</h3><p>Monthly fellowship meetings for conversation, listening and support that ease loneliness, depression and isolation.</p></div>
       <div class="prog reveal d1"><span class="num">02</span><div class="ic"><%- icon('food') %></div><h3>Food &amp; essential supplies</h3><p>Food stuff and essential home supplies handed to every member at each monthly gathering.</p></div>
       <div class="prog reveal d2"><span class="num">03</span><div class="ic"><%- icon('health') %></div><h3>Health &amp; wellness</h3><p>Health check-ups, referrals to health facilities and follow-up for elders living with chronic illness.</p></div>
@@ -75,7 +75,7 @@
       <div class="section-head reveal"><span class="eyebrow">Upcoming</span><h2>Join us at our next gatherings</h2></div>
       <a class="btn btn-line reveal" href="/events">All events <%- icon('arrow') %></a>
     </div>
-    <div class="events-grid">
+    <div class="events-grid swipe">
       <% upcoming.forEach((e, i) => { %><%- include('partials/event-card', { e, delay: 'd' + i }) %><% }) %>
     </div>
   </div>
@@ -93,7 +93,7 @@
       <div class="section-head reveal"><span class="eyebrow">Our track record</span><h2>What we have done together</h2><p>Highlights, photos and outcomes from our recent gatherings.</p></div>
       <a class="btn btn-line reveal" href="/events#past">All past events <%- icon('arrow') %></a>
     </div>
-    <div class="events-grid">
+    <div class="events-grid swipe">
       <% past.forEach((e, i) => { %><%- include('partials/event-card', { e, delay: 'd' + i }) %><% }) %>
     </div>
   </div>
@@ -117,7 +117,7 @@
 <section>
   <div class="wrap">
     <div class="section-head center reveal"><span class="eyebrow">Our journey</span><h2>Milestones so far</h2></div>
-    <div class="ms-grid">
+    <div class="ms-grid swipe">
       <% milestones.forEach((m, i) => { %>
       <div class="ms reveal d<%= i % 3 %>"><span class="when"><%= m.period %></span><h3><%= m.title %></h3><% if (m.description) { %><p><%= m.description %></p><% } %></div>
       <% }) %>

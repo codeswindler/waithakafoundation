@@ -35,6 +35,12 @@
     </div>
   </div>
 </footer>
+<% const quick = s.whatsapp ? { href: 'https://wa.me/' + h.waNumber(s.whatsapp), label: 'WhatsApp', ic: 'whatsapp', ext: true } : s.phone ? { href: 'tel:' + s.phone.replace(/\s/g, ''), label: 'Call us', ic: 'phone' } : { href: '/contact', label: 'Contact', ic: 'mail' }; %>
+<nav class="mbar" aria-label="Quick actions">
+  <a href="/events"<%- path.startsWith('/events') ? ' aria-current="page"' : '' %>><%- icon('calendar') %><span>Events</span></a>
+  <a class="mbar-give" href="/support"><%- icon('heart') %><span>Give</span></a>
+  <a href="<%= quick.href %>"<%- quick.ext ? ' target="_blank" rel="noopener"' : '' %>><%- icon(quick.ic) %><span><%= quick.label %></span></a>
+</nav>
 <div class="lb" id="lightbox" role="dialog" aria-modal="true" aria-label="Media viewer" hidden>
   <span class="lb-count"></span>
   <div class="lb-stage"></div>

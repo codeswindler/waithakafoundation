@@ -7,7 +7,7 @@
 <html lang="en" class="no-js">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title><%= pageTitle %></title>
 <meta name="description" content="<%= desc %>">
 <meta name="theme-color" content="#1f3d2b">
@@ -17,6 +17,9 @@
 <meta property="og:description" content="<%= desc %>">
 <% if (og) { %><meta property="og:image" content="<%= baseUrl %>/uploads/<%= og %>"><meta name="twitter:card" content="summary_large_image"><% } %>
 <link rel="icon" href="/static/img/logo-mark.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/img/icon-180.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="<%= s.site_name %>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">

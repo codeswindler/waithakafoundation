@@ -233,3 +233,16 @@ input[type=file] { font: inherit; font-size: .88rem; }
   .table td.right { text-align: left; margin-top: 6px; }
   .table td.nowrap { white-space: normal; }
 }
+
+/* Phones: 16px fields stop iOS from zooming in on tap; bigger buttons for thumbs */
+@media (max-width: 760px) {
+  input:not([type=checkbox]):not([type=radio]):not([type=file]), textarea, select { font-size: 16px; }
+  .mform input, .mform textarea, .mform select { font-size: 16px !important; }
+  .btn { min-height: 44px; }
+  .btn.sm { min-height: 38px; padding: 8px 12px; }
+  .side nav a { padding: 12px; }
+  .top { padding-top: max(12px, env(safe-area-inset-top)); }
+  .form-actions .btn.primary { flex: 1 1 auto; justify-content: center; }
+  .kpi b { font-size: 1.7rem; }
+  .quick { grid-template-columns: 1fr; }
+}

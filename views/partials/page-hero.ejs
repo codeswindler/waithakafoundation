@@ -1,4 +1,4 @@
-<section class="page-hero <%= s.hero_image ? 'has-img' : '' %>" <% if (s.hero_image) { %>style="--bg:url('/uploads/<%= s.hero_image %>')"<% } %>>
+<section class="page-hero <%= s.hero_image ? 'has-img' : '' %>" <% if (s.hero_image) { %>style="--bg:url('/uploads/<%= s.hero_image %>');--bg-sm:url('/uploads/<%= h.smallOf(s.hero_image) %>')"<% } %>>
   <div class="wrap">
     <div class="crumbs"><a href="/">Home</a> / <%= crumb %></div>
     <h1><%= heading %></h1>

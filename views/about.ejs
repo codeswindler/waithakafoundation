@@ -9,7 +9,7 @@
       <div class="prose"><%- h.paras(s.about_story) %></div>
     </div>
     <div class="photo-stack reveal d1">
-      <div class="main"><% if (s.hero_image) { %><img src="/uploads/<%= s.hero_image %>" alt="Members of the Waithaka Foundation" loading="lazy"><% } %></div>
+      <div class="main"><% if (s.hero_image) { %><img src="/uploads/<%= s.hero_image %>" srcset="<%= h.srcset(s.hero_image) %>" sizes="(max-width: 900px) 92vw, 480px" alt="Members of the Waithaka Foundation" loading="lazy"><% } %></div>
       <div class="badge"><b><%= s.stat_since %></b><span>Founded as a family act of giving back</span></div>
     </div>
   </div>
@@ -26,7 +26,7 @@
 <section>
   <div class="wrap">
     <div class="section-head center reveal"><span class="eyebrow" style="color:var(--clay)">Core values</span><h2>What guides everything we do</h2><p>The elderly deserve safety, comfort, love and peace in their sunset years.</p></div>
-    <div class="values">
+    <div class="values swipe">
       <% [['heart','Compassion','Serving with empathy.'],['star','Respect','Honouring the life of every senior citizen.'],['shield','Integrity','Operating with transparency and honesty.'],['users','Inclusivity','Welcoming all elderly individuals in need.'],['hands','Service','Dedicating our efforts to uplifting the vulnerable.']].forEach(([ic, t, d], i) => { %>
       <div class="value reveal d<%= i % 3 %>"><div class="ic"><%- icon(ic) %></div><h3><%= t %></h3><p><%= d %></p></div>
       <% }) %>

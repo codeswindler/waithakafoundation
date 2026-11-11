@@ -6,7 +6,7 @@
   const gcal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&dates=${e.start_date.replace(/-/g,'')}${e.start_time ? 'T' + e.start_time.replace(':','') + '00' : ''}/${e.start_date.replace(/-/g,'')}${e.end_time ? 'T' + e.end_time.replace(':','') + '00' : (e.start_time ? 'T' + e.start_time.replace(':','') + '00' : '')}&ctz=Africa/Nairobi&location=${encodeURIComponent(e.venue || '')}&details=${encodeURIComponent(e.summary || '')}`;
 %>
 <section class="event-hero">
-  <% if (e.cover_file) { %><div class="bgimg"><img src="/uploads/<%= e.cover_file %>" alt=""></div><% } %>
+  <% if (e.cover_file) { %><div class="bgimg"><img src="/uploads/<%= e.cover_file %>" srcset="<%= h.srcset(e.cover_file) %>" sizes="100vw" alt=""></div><% } %>
   <div class="wrap">
     <div class="crumbs"><a href="/">Home</a> / <a href="/events">Events</a> / <%= isUpcoming ? 'Upcoming' : 'Past event' %></div>
     <span class="eyebrow"><%= isUpcoming ? 'Upcoming event' : 'Event report' %></span>
@@ -71,7 +71,7 @@
 <section class="bg-paper">
   <div class="wrap">
     <div class="section-head reveal"><span class="eyebrow" style="color:var(--clay)">More events</span><h2>You may also like</h2></div>
-    <div class="events-grid"><% related.forEach((r, i) => { %><%- include('partials/event-card', { e: r, delay: 'd' + i }) %><% }) %></div>
+    <div class="events-grid swipe"><% related.forEach((r, i) => { %><%- include('partials/event-card', { e: r, delay: 'd' + i }) %><% }) %></div>
   </div>
 </section>
 <% } %>

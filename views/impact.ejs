@@ -29,7 +29,7 @@
       <a class="btn btn-line" href="/events#past">All reports <%- icon('arrow') %></a>
     </div>
     <% if (past.length) { %>
-      <div class="events-grid"><% past.forEach((e, i) => { %><%- include('partials/event-card', { e, delay: 'd' + (i % 3) }) %><% }) %></div>
+      <div class="events-grid swipe"><% past.forEach((e, i) => { %><%- include('partials/event-card', { e, delay: 'd' + (i % 3) }) %><% }) %></div>
     <% } else { %><div class="empty"><h3>Event reports will appear here</h3></div><% } %>
   </div>
 </section>

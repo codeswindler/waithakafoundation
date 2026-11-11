@@ -15,7 +15,7 @@ const progs = [
       <div style="direction:ltr">
         <div class="photo-stack">
           <div class="main" style="aspect-ratio:4/3;background:var(--forest);display:grid;place-items:center">
-            <% if (ph) { %><img src="/uploads/<%= ph.file %>" alt="<%= ph.title || p.t %>" loading="lazy"><% } else { %><span style="color:var(--gold-2);width:90px"><%- icon(p.ic) %></span><% } %>
+            <% if (ph) { %><img src="/uploads/<%= ph.file %>" srcset="<%= h.srcset(ph.file) %>" sizes="(max-width: 900px) 92vw, 560px" alt="<%= ph.title || p.t %>" loading="lazy"><% } else { %><span style="color:var(--gold-2);width:90px"><%- icon(p.ic) %></span><% } %>
           </div>
           <div class="badge"><b>0<%= i + 1 %></b><span><%= p.t %></span></div>
         </div>

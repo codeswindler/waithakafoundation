@@ -36,6 +36,20 @@ async function createApp() {
   app.use('/static', express.static(path.join(__dirname, '..', 'public'), { maxAge: process.env.NODE_ENV === 'production' ? '7d' : 0 }));
   app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '30d', immutable: true, index: false, dotfiles: 'deny' }));
   app.get('/brief.pdf', (req, res) => res.sendFile(path.join(__dirname, '..', 'seed', 'foundation-brief.pdf')));
+  app.get('/manifest.webmanifest', async (req, res, next) => {
+    try {
+      const st = await getSettings();
+      res.type('application/manifest+json').send(JSON.stringify({
+        name: st.site_full_name, short_name: st.site_name, start_url: '/', display: 'standalone',
+        background_color: '#fbf7ef', theme_color: '#1f3d2b', description: st.tagline,
+        icons: [
+          { src: '/static/img/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/static/img/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/static/img/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      }));
+    } catch (e) { next(e); }
+  });
   app.get('/favicon.ico', (req, res) => res.redirect(301, '/static/img/logo-mark.svg'));
   app.get('/robots.txt', (req, res) => res.type('text').send(`User-agent: *\nDisallow: /admin\nSitemap: ${process.env.BASE_URL || `${req.protocol}://${req.get('host')}`}/sitemap.xml\n`));
   // For uptime checks / PM2 monitoring: confirms the app and the database both answer.
