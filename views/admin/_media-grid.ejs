@@ -1,0 +1,31 @@
+<div class="mgrid">
+  <% media.forEach((m) => { %>
+  <div class="mcard" id="media-<%= m.id %>">
+    <div class="mthumb">
+      <% if (m.kind === 'image') { %><img src="/uploads/<%= m.thumb %>" alt="" loading="lazy">
+      <% } else if (m.kind === 'video') { %><video src="/uploads/<%= m.file %>#t=0.5" preload="metadata" muted controls></video>
+      <% } else { %><img src="https://i.ytimg.com/vi/<%= m.youtube_id %>/mqdefault.jpg" alt="" loading="lazy"><% } %>
+      <span class="kind"><%= m.kind === 'image' ? 'Photo' : m.kind === 'video' ? 'Video' : 'YouTube' %></span>
+      <% if (m.featured) { %><span class="kind star">★ Homepage</span><% } %>
+      <% if (m.kind === 'image' && s.hero_image === m.file) { %><span class="kind hero">Banner</span><% } %>
+    </div>
+    <form method="post" action="/admin/media/<%= m.id %>" class="mform">
+      <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="back" value="<%= back %>">
+      <input name="title" value="<%= m.title || '' %>" placeholder="Title" maxlength="160" aria-label="Title">
+      <textarea name="caption" rows="2" placeholder="Caption" maxlength="600" aria-label="Caption"><%= m.caption || '' %></textarea>
+      <% if (events) { %>
+      <select name="event_id" aria-label="Event"><option value="">No event</option><% events.forEach((ev) => { %><option value="<%= ev.id %>" <%= m.event_id === ev.id ? 'selected' : '' %>><%= h.excerpt(ev.title, 40) %> · <%= h.fmtMon(ev.start_date) %> <%= h.fmtYear(ev.start_date) %></option><% }) %></select>
+      <% } else { %><input type="hidden" name="event_id" value="<%= m.event_id || '' %>"><% } %>
+      <div class="mrow">
+        <label class="check sm"><input type="checkbox" name="featured" value="1" <%= m.featured ? 'checked' : '' %>> Show on homepage</label>
+        <input type="number" name="sort" value="<%= m.sort %>" title="Order (lower shows first)" aria-label="Order" class="sortbox">
+      </div>
+      <div class="mrow">
+        <button class="btn sm primary" type="submit">Save</button>
+        <% if (m.kind === 'image' && s.hero_image !== m.file) { %><button class="btn sm ghost" type="submit" formaction="/admin/media/<%= m.id %>/hero" title="Use as the big homepage photo">Use as banner</button><% } %>
+        <button class="btn sm danger-link" type="submit" formaction="/admin/media/<%= m.id %>/delete" data-confirm="Delete this <%= m.kind === 'image' ? 'photo' : 'video' %> permanently?">Delete</button>
+      </div>
+    </form>
+  </div>
+  <% }) %>
+</div>

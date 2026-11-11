@@ -1,0 +1,44 @@
+<%
+  const goal = h.num(s.campaign_goal), raised = h.num(s.campaign_raised);
+  const pct = goal ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
+%>
+<div class="campaign-card reveal" id="campaign">
+  <div class="copy">
+    <span class="eyebrow">Our big goal</span>
+    <h2><%= s.campaign_title %></h2>
+    <p><%= s.campaign_text %></p>
+    <% if (goal) { %>
+    <div class="progress" aria-label="Campaign progress">
+      <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<%= pct %>"><div class="fill" data-pct="<%= pct %>"></div></div>
+      <div class="nums"><span><b><%= h.money(raised, s.currency) || s.currency + ' 0' %></b> raised</span><span><%= pct %>% of <%= h.money(goal, s.currency) %></span></div>
+    </div>
+    <% } %>
+    <div class="flex-gap" style="margin-top:26px">
+      <a class="btn btn-gold" href="/support#give"><%- icon('heart') %> Give to the land fund</a>
+      <% if (locals.showMore !== false) { %><a class="btn btn-ghost" href="/support#form">Become a partner</a><% } %>
+    </div>
+  </div>
+  <div class="art" aria-hidden="true">
+    <svg viewBox="0 0 400 300" fill="none">
+      <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8b95a" stop-opacity=".25"/><stop offset="1" stop-color="#e8b95a" stop-opacity="0"/></linearGradient></defs>
+      <circle cx="300" cy="80" r="38" fill="#e8b95a" opacity=".9"/>
+      <circle cx="300" cy="80" r="58" fill="url(#sky)"/>
+      <path d="M0 230 C80 200 140 215 200 205 S330 190 400 210 V300 H0z" fill="#3b6a4b"/>
+      <path d="M0 255 C90 235 170 250 240 240 S350 232 400 245 V300 H0z" fill="#2b5239"/>
+      <!-- the future complex, dashed: not yet built -->
+      <g stroke="#f4ead6" stroke-width="2.4" stroke-dasharray="7 6" stroke-linejoin="round">
+        <path d="M110 205 V140 L170 105 L230 140 V205"/>
+        <path d="M230 205 V155 H300 V205"/>
+        <path d="M150 205 V170 H190 V205"/>
+        <rect x="245" y="168" width="18" height="16"/><rect x="270" y="168" width="18" height="16"/>
+        <rect x="125" y="150" width="18" height="16"/><rect x="197" y="150" width="18" height="16"/>
+      </g>
+      <!-- acacia -->
+      <path d="M330 222 V190" stroke="#13281b" stroke-width="5"/>
+      <path d="M300 190 C310 176 352 172 366 188 C350 196 318 198 300 190z" fill="#13281b"/>
+      <!-- plot marker -->
+      <g transform="translate(62 196)"><path d="M0 0 V-46" stroke="#e8b95a" stroke-width="3"/><path d="M0 -46 L26 -38 L0 -30z" fill="#e8b95a"/></g>
+      <text x="200" y="285" text-anchor="middle" fill="#f4ead6" font-family="Inter, sans-serif" font-size="13" letter-spacing="3" opacity=".8">WAITHAKA FOUNDATION COMPLEX</text>
+    </svg>
+  </div>
+</div>

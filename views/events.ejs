@@ -1,0 +1,44 @@
+<%- include('partials/head') %>
+<%- include('partials/page-hero', { crumb: 'Events', heading: 'Gatherings, celebrations & fundraisers', lede: 'Come and meet our elders. See what is coming up, and browse highlights from the gatherings we have already held.' }) %>
+
+<section id="upcoming">
+  <div class="wrap">
+    <div class="section-head reveal"><span class="eyebrow" style="color:var(--clay)">Upcoming</span><h2>What is coming up</h2></div>
+    <% if (upcoming.length) { %>
+      <div class="events-grid"><% upcoming.forEach((e, i) => { %><%- include('partials/event-card', { e, delay: 'd' + (i % 3) }) %><% }) %></div>
+    <% } else { %>
+      <div class="empty"><h3>Our next gathering is being planned</h3><p>We meet every month. Get in touch to be told when the date is confirmed.</p><a class="btn btn-forest" href="/contact">Contact us</a></div>
+    <% } %>
+  </div>
+</section>
+
+<section id="past" class="bg-paper">
+  <div class="wrap">
+    <div class="head-row">
+      <div class="section-head reveal"><span class="eyebrow" style="color:var(--clay)">Past events</span><h2>Our record of service</h2><p>Each gathering, documented with photos, videos and what we achieved together.</p></div>
+    </div>
+    <% if (years.length > 1) { %>
+    <div class="chips" data-filter-group>
+      <button class="chip on" data-filter="all">All years</button>
+      <% years.forEach((y) => { %><button class="chip" data-filter="<%= y %>"><%= y %></button><% }) %>
+    </div>
+    <% } %>
+    <% if (past.length) { %>
+      <div class="events-grid" data-filter-target>
+        <% past.forEach((e, i) => { %><div data-year="<%= h.fmtYear(e.start_date) %>" style="display:contents"><%- include('partials/event-card', { e, delay: 'd' + (i % 3) }) %></div><% }) %>
+      </div>
+    <% } else { %>
+      <div class="empty"><h3>Reports from past events will appear here</h3></div>
+    <% } %>
+  </div>
+</section>
+
+<section class="section-sm">
+  <div class="wrap">
+    <div class="cta-band reveal">
+      <div><h2>Sponsor our next gathering</h2><p>Venue, food, facilitators, medical supplies and transport: help us bring every elder through the door.</p></div>
+      <a class="btn btn-gold" href="/support"><%- icon('heart') %> Become a sponsor</a>
+    </div>
+  </div>
+</section>
+<%- include('partials/foot') %>

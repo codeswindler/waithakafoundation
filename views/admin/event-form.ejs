@@ -1,0 +1,55 @@
+<%- include('_head', { actions: !e.id ? '' : e.published ? `<a class="btn ghost" href="/events/${e.slug}" target="_blank">View on website</a>` : '<span class="pill">Hidden draft: not on the website yet</span>' }) %>
+<% const isPast = e.start_date && e.start_date < h.today(); const images = media.filter(m => m.kind === 'image'); %>
+<% if (errors) { %><div class="flash warn"><% errors.forEach((x) => { %><div><%= x %></div><% }) %></div><% } %>
+<% if (e.sample) { %><div class="flash info">This is an <b>example event</b> created at setup so the website was not empty. Change it to a real event and save (the label disappears), or delete it.</div><% } %>
+
+<form method="post" action="<%= e.id ? '/admin/events/' + e.id : '/admin/events' %>" class="card form">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="fgrid">
+    <div class="full"><label for="title">Event title *</label><input id="title" name="title" required maxlength="160" value="<%= e.title || '' %>" placeholder="e.g. Monthly Fellowship Gathering: March"></div>
+    <div><label for="start_date">Date *</label><input id="start_date" type="date" name="start_date" required value="<%= e.start_date || '' %>"><small class="muted">Past dates show under “Past events”, future dates under “Upcoming”.</small></div>
+    <div class="two"><div><label for="start_time">Starts</label><input id="start_time" type="time" name="start_time" value="<%= e.start_time || '' %>"></div><div><label for="end_time">Ends</label><input id="end_time" type="time" name="end_time" value="<%= e.end_time || '' %>"></div></div>
+    <div><label for="venue">Venue</label><input id="venue" name="venue" maxlength="200" value="<%= e.venue || '' %>" placeholder="e.g. PCEA Church Hall, Kabuku"></div>
+    <div><label for="attendance">Attendance <span class="muted">(after the event)</span></label><input id="attendance" type="number" min="0" name="attendance" value="<%= e.attendance ?? '' %>" placeholder="How many attended"></div>
+    <div class="full"><label for="summary">Short summary</label><textarea id="summary" name="summary" rows="2" maxlength="400" placeholder="One or two sentences shown on event cards"><%= e.summary || '' %></textarea></div>
+    <div class="full"><label for="body">Full description / report</label><textarea id="body" name="body" rows="8" placeholder="Describe the event. Leave a blank line between paragraphs."><%= e.body || '' %></textarea></div>
+    <div class="full"><label for="achievements"><%= isPast ? 'What was achieved' : 'What to expect' %> <span class="muted">(one per line)</span></label><textarea id="achievements" name="achievements" rows="5" placeholder="e.g. 95 elders received food hampers&#10;40 health check-ups carried out&#10;12 referrals to Limuru hospital"><%= e.achievements || '' %></textarea></div>
+    <% if (images.length) { %>
+    <div class="full"><label>Cover photo</label>
+      <div class="cover-pick">
+        <label><input type="radio" name="cover_media_id" value="" <%= !e.cover_media_id ? 'checked' : '' %>><span class="auto">Automatic<br><small>first photo</small></span></label>
+        <% images.forEach((m) => { %><label><input type="radio" name="cover_media_id" value="<%= m.id %>" <%= e.cover_media_id === m.id ? 'checked' : '' %>><img src="/uploads/<%= m.thumb %>" alt="<%= m.title %>"></label><% }) %>
+      </div>
+    </div>
+    <% } %>
+    <div class="full checks">
+      <label class="check"><input type="checkbox" name="published" value="1" <%= e.published ? 'checked' : '' %>> <span><b>Show on website</b><small>Untick to keep as a hidden draft</small></span></label>
+      <label class="check"><input type="checkbox" name="featured" value="1" <%= e.featured ? 'checked' : '' %>> <span><b>Feature on homepage</b><small>Shown in the homepage banner with a countdown (upcoming events only)</small></span></label>
+    </div>
+  </div>
+  <div class="form-actions"><button class="btn primary" type="submit"><%= e.id ? 'Save changes' : 'Create event & add photos' %></button><a class="btn ghost" href="/admin/events">Cancel</a></div>
+</form>
+
+<% if (e.id) { %>
+<section class="card" id="media">
+  <div class="card-head"><h2>Photos &amp; videos for this event (<%= media.length %>)</h2></div>
+  <%- include('_uploader', { eventId: e.id, back: '/admin/events/' + e.id + '#media' }) %>
+  <% if (media.length) { %><%- include('_media-grid', { media, back: '/admin/events/' + e.id + '#media', events: null }) %><% } %>
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>Planning the next one?</h2></div>
+  <p class="muted small">Monthly gatherings repeat. Make a hidden copy of this event dated one month later (title, times, venue and description; no photos or results).</p>
+  <form method="post" action="/admin/events/<%= e.id %>/duplicate"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn" type="submit">Copy for next month</button></form>
+</section>
+
+<section class="card danger-zone">
+  <h2>Delete this event</h2>
+  <form method="post" action="/admin/events/<%= e.id %>/delete" data-confirm="Delete “<%= e.title %>”? This cannot be undone.">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <label class="check"><input type="checkbox" name="with_media" value="1"> <span>Also delete its <%= media.length %> photos/videos (otherwise they stay in the gallery)</span></label>
+    <button class="btn danger" type="submit">Delete event</button>
+  </form>
+</section>
+<% } %>
+<%- include('_foot') %>

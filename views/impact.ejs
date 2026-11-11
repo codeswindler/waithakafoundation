@@ -1,0 +1,57 @@
+<%- include('partials/head') %>
+<%- include('partials/page-hero', { crumb: 'Impact', heading: 'Our impact, documented', lede: 'What we have achieved since ' + s.stat_since + ', and the evidence behind it: milestones, event reports, photos and videos.' }) %>
+
+<section class="stats-band" aria-label="Impact in numbers">
+  <div class="wrap stats">
+    <div class="stat"><b data-count="<%= s.stat_members %>"><%= s.stat_members %></b><span><%= s.stat_members_label %></span></div>
+    <div class="stat"><b data-count="<%= stats.eventsHeld %>"><%= stats.eventsHeld %></b><span>Gatherings documented on this site</span></div>
+    <% if (stats.attendance) { %><div class="stat"><b data-count="<%= stats.attendance %>"><%= stats.attendance %></b><span>Total attendance at documented gatherings</span></div><% } %>
+    <div class="stat"><b data-count="<%= stats.photos %>"><%= stats.photos %></b><span>Photos from our work</span></div>
+    <% if (!stats.attendance) { %><div class="stat"><b data-count="<%= stats.videos %>"><%= stats.videos %></b><span>Videos</span></div><% } %>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head center reveal"><span class="eyebrow" style="color:var(--clay)">Milestones</span><h2>Our journey</h2></div>
+    <div class="timeline">
+      <% milestones.forEach((m) => { %>
+      <div class="tl-item reveal"><div class="tl-card"><% if (m.period) { %><span class="when"><%= m.period %></span><% } %><h3><%= m.title %></h3><% if (m.description) { %><p><%= m.description %></p><% } %></div></div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<section class="bg-paper">
+  <div class="wrap">
+    <div class="head-row">
+      <div class="section-head reveal"><span class="eyebrow" style="color:var(--clay)">Event reports</span><h2>Recent gatherings</h2></div>
+      <a class="btn btn-line" href="/events#past">All reports <%- icon('arrow') %></a>
+    </div>
+    <% if (past.length) { %>
+      <div class="events-grid"><% past.forEach((e, i) => { %><%- include('partials/event-card', { e, delay: 'd' + (i % 3) }) %><% }) %></div>
+    <% } else { %><div class="empty"><h3>Event reports will appear here</h3></div><% } %>
+  </div>
+</section>
+
+<section class="bg-forest">
+  <div class="wrap split">
+    <div class="reveal">
+      <span class="eyebrow">Transparency</span>
+      <h2>How we stay accountable</h2>
+      <p style="color:rgba(255,255,255,.8)">A Board of Directors oversees the foundation, with dedicated Audit, Human Resource and Governance committees. We document every gathering here so partners can see exactly where their support goes.</p>
+      <div class="flex-gap"><a class="btn btn-gold" href="/about#governance">Our governance</a><% if (s.brief_pdf === '1') { %><a class="btn btn-ghost" href="/brief.pdf" target="_blank"><%- icon('download') %> Foundation brief</a><% } %></div>
+    </div>
+    <div class="funds-list reveal d1">
+      <div class="fund"><%- icon('scale') %><b>Audit Committee</b><span>Financial transparency</span></div>
+      <div class="fund"><%- icon('users') %><b>HR Committee</b><span>People &amp; volunteers</span></div>
+      <div class="fund"><%- icon('shield') %><b>Governance Committee</b><span>Policy &amp; compliance</span></div>
+      <div class="fund"><%- icon('camera') %><b>Every event documented</b><span>Photos, videos &amp; reports</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section-sm">
+  <div class="wrap"><%- include('partials/campaign') %></div>
+</section>
+<%- include('partials/foot') %>

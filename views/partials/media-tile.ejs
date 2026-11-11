@@ -1,0 +1,24 @@
+<%
+  // m: media row. Renders a lightbox-ready tile.
+  const capTitle = m.title || '';
+  const capText = m.caption || '';
+  const evLabel = m.event_title || '';
+%>
+<% if (m.kind === 'image') { %>
+<button type="button" class="tile reveal" data-lb="image" data-src="/uploads/<%= m.file %>" data-title="<%= capTitle %>" data-caption="<%= capText %>">
+  <img src="/uploads/<%= m.thumb || m.file %>" alt="<%= capTitle || capText || 'Foundation photo' %>" loading="lazy" <% if (m.width && m.height) { %>width="<%= m.width %>" height="<%= m.height %>"<% } %>>
+  <% if (capTitle || evLabel) { %><span class="cap"><% if (evLabel) { %><small><%= evLabel %></small><% } %><%= capTitle %></span><% } %>
+</button>
+<% } else if (m.kind === 'video') { %>
+<button type="button" class="tile video-tile reveal" data-lb="video" data-src="/uploads/<%= m.file %>" data-title="<%= capTitle %>" data-caption="<%= capText %>">
+  <video src="/uploads/<%= m.file %>#t=0.5" preload="metadata" muted playsinline tabindex="-1"></video>
+  <span class="play"><%- icon('play') %></span>
+  <span class="cap"><% if (evLabel) { %><small><%= evLabel %></small><% } %><%= capTitle || 'Video' %></span>
+</button>
+<% } else { %>
+<button type="button" class="tile video-tile reveal" data-lb="youtube" data-src="<%= m.youtube_id %>" data-title="<%= capTitle %>" data-caption="<%= capText %>">
+  <img src="https://i.ytimg.com/vi/<%= m.youtube_id %>/hqdefault.jpg" alt="<%= capTitle || 'Video' %>" loading="lazy">
+  <span class="play"><%- icon('play') %></span>
+  <span class="cap"><% if (evLabel) { %><small><%= evLabel %></small><% } %><%= capTitle || 'Video' %></span>
+</button>
+<% } %>

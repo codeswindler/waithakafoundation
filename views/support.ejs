@@ -1,0 +1,107 @@
+<%- include('partials/head') %>
+<%- include('partials/page-hero', { crumb: 'Support us', heading: 'Stand with the elders of Limuru', lede: 'Your gift, partnership or time keeps our monthly gatherings going, and helps us build a permanent home for our elders.' }) %>
+<% const f = locals.form || {}; const k = locals.kind || 'partner'; const hasPay = s.mpesa_paybill || s.bank_details; %>
+
+<section id="give">
+  <div class="wrap">
+    <div class="section-head center reveal"><span class="eyebrow" style="color:var(--clay)">Ways to help</span><h2>Choose how you would like to give</h2></div>
+    <div class="give-grid">
+      <div class="give reveal">
+        <h3>Give a gift</h3>
+        <p class="muted">Every shilling goes to food, health care and transport for our elders.</p>
+        <ul><li>Food &amp; supplies for a member</li><li>Health check-ups &amp; medication</li><li>Transport to the gathering</li></ul>
+        <a class="btn btn-forest" href="#pay">How to give</a>
+      </div>
+      <div class="give feature reveal d1">
+        <h3>Sponsor a gathering</h3>
+        <p>Underwrite a full monthly event for all <%= s.stat_members %> members, with your organisation recognised on this website and at the event.</p>
+        <ul><li>Venue, food, facilitators, medical supplies &amp; transport</li><li>Photo &amp; video report for your CSR records</li><li>Logo on our partners wall</li></ul>
+        <a class="btn btn-gold" href="#form" data-kind="partner">Talk to us about sponsoring</a>
+      </div>
+      <div class="give reveal d2">
+        <h3>Volunteer your time</h3>
+        <p class="muted">Doctors, nurses, counsellors, drivers, cooks and friendly listeners are all welcome.</p>
+        <ul><li>Health screening days</li><li>Transport &amp; logistics</li><li>Companionship &amp; fellowship</li></ul>
+        <a class="btn btn-forest" href="#form" data-kind="volunteer">Sign up to volunteer</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-sm" id="campaign-wrap">
+  <div class="wrap"><%- include('partials/campaign', { showMore: false }) %></div>
+</section>
+
+<section id="pay" class="bg-paper">
+  <div class="wrap split">
+    <div class="reveal">
+      <span class="eyebrow" style="color:var(--clay)">Give directly</span>
+      <h2>Payment details</h2>
+      <p class="muted">Please use the account reference shown so we can thank you and account for your gift. Corporate partners can request an invoice and a sponsorship proposal through the form below.</p>
+      <% if (s.brief_pdf === '1') { %><a class="btn btn-line" href="/brief.pdf" target="_blank"><%- icon('download') %> Download our brief</a><% } %>
+    </div>
+    <div class="pay-box reveal d1">
+      <% if (hasPay) { %>
+        <% if (s.mpesa_paybill) { %>
+          <div class="pay-row"><div><span>M-Pesa Paybill</span><br><b><%= s.mpesa_paybill %></b></div><button class="copy-btn" data-copy="<%= s.mpesa_paybill %>">Copy</button></div>
+          <% if (s.mpesa_account) { %><div class="pay-row"><div><span>Account number</span><br><b><%= s.mpesa_account %></b></div><button class="copy-btn" data-copy="<%= s.mpesa_account %>">Copy</button></div><% } %>
+        <% } %>
+        <% if (s.bank_details) { %><div class="pay-row"><div><span>Bank transfer</span><div style="white-space:pre-line;font-weight:600;color:var(--forest);margin-top:4px"><%= s.bank_details %></div></div></div><% } %>
+      <% } else { %>
+        <h3>Giving details</h3>
+        <p class="muted">Our official giving channels are being finalised. Contact us and we will share M-Pesa and bank details directly.</p>
+        <div class="flex-gap">
+          <% if (s.phone) { %><a class="btn btn-forest" href="tel:<%= s.phone.replace(/\s/g,'') %>"><%- icon('phone') %> <%= s.phone %></a><% } %>
+          <a class="btn btn-gold" href="#form">Send us a message</a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<% if (partners.length) { %>
+<section class="bg-gold section-sm">
+  <div class="wrap">
+    <div class="section-head center reveal" style="margin-bottom:30px"><span class="eyebrow">Our partners</span><h2>In good company</h2></div>
+    <div class="partners">
+      <% partners.forEach((p) => { %><a class="partner" <% if (p.url) { %>href="<%= h.safeUrl(p.url) %>" target="_blank" rel="noopener"<% } %>><% if (p.logo) { %><img src="/uploads/<%= p.logo %>" alt="<%= p.name %>" loading="lazy"><% } else { %><span><%= p.name %><% if (p.tier) { %><small><%= p.tier %></small><% } %></span><% } %></a><% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<section id="form">
+  <div class="wrap split">
+    <div class="reveal">
+      <span class="eyebrow" style="color:var(--clay)">Let's talk</span>
+      <h2>Partner or volunteer with us</h2>
+      <p class="muted">Tell us a little about yourself or your organisation. Our Executive Officer will get back to you.</p>
+      <ul class="contact-list" style="margin-top:28px">
+        <li><span class="ic"><%- icon('handshake') %></span><div><small>Companies &amp; foundations</small><b>CSR partnerships &amp; event sponsorship</b></div></li>
+        <li><span class="ic"><%- icon('hands') %></span><div><small>Individuals</small><b>Volunteering &amp; personal giving</b></div></li>
+        <li><span class="ic"><%- icon('home') %></span><div><small>Land &amp; building</small><b>Support for the Foundation Complex</b></div></li>
+      </ul>
+    </div>
+    <div class="form-card reveal d1">
+      <% if (locals.sent) { %><div class="alert ok"><b>Thank you!</b> Your message has reached the foundation. We will be in touch soon.</div><% } %>
+      <% if (locals.errors) { %><div class="alert err">Please check the form:<ul><% errors.forEach((e) => { %><li><%= e %></li><% }) %></ul></div><% } %>
+      <form method="post" action="/support/enquiry#form" data-timed>
+        <div class="seg" role="radiogroup" aria-label="I would like to">
+          <label><input type="radio" name="type" value="partner" <%= k !== 'volunteer' ? 'checked' : '' %>><span>Partner / sponsor</span></label>
+          <label><input type="radio" name="type" value="volunteer" <%= k === 'volunteer' ? 'checked' : '' %>><span>Volunteer</span></label>
+        </div>
+        <div class="form-grid">
+          <div><label for="name">Your name</label><input type="text" id="name" name="name" required value="<%= f.name || '' %>" autocomplete="name"></div>
+          <div><label for="organisation">Organisation <span class="muted">(optional)</span></label><input type="text" id="organisation" name="organisation" value="<%= f.organisation || '' %>" autocomplete="organization"></div>
+          <div><label for="email">Email</label><input type="email" id="email" name="email" value="<%= f.email || '' %>" autocomplete="email"></div>
+          <div><label for="phone">Phone</label><input type="tel" id="phone" name="phone" value="<%= f.phone || '' %>" autocomplete="tel" placeholder="07XX XXX XXX"></div>
+          <div class="full"><label for="message">How would you like to help?</label><textarea id="message" name="message"><%= f.message || '' %></textarea></div>
+          <div class="hp" aria-hidden="true"><label>Leave empty<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+          <input type="hidden" name="t" value="">
+          <div class="full"><button class="btn btn-gold" type="submit">Send</button></div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+<%- include('partials/foot') %>

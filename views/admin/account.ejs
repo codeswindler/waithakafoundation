@@ -1,0 +1,33 @@
+<%- include('_head') %>
+<% if (first) { %><div class="flash info"><b>Welcome!</b> Please set your own password before you continue. The temporary one will stop working.</div><% } %>
+<% if (errors) { %><div class="flash warn"><% errors.forEach((x) => { %><div><%= x %></div><% }) %></div><% } %>
+<div class="grid-2">
+  <form method="post" action="/admin/account/password" class="card form">
+    <h2>Your account</h2>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <label>Your name</label><input name="name" value="<%= user.name %>" maxlength="80">
+    <label>Email</label><input value="<%= user.email %>" disabled>
+    <label>Current password</label><input type="password" name="current" required autocomplete="current-password">
+    <label>New password <span class="muted">(at least 10 characters)</span></label><input type="password" name="password" required minlength="10" autocomplete="new-password">
+    <label>Repeat new password</label><input type="password" name="confirm" required minlength="10" autocomplete="new-password">
+    <div class="form-actions"><button class="btn primary">Update password</button></div>
+  </form>
+  <% if (!first) { %>
+  <section class="card form">
+    <h2>Admins (<%= users.length %>)</h2>
+    <ul class="rows">
+      <% users.forEach((u) => { %><li><span><b><%= u.name %></b><small><%= u.email %></small></span>
+        <% if (u.id !== user.id) { %><form method="post" action="/admin/account/users/<%= u.id %>/delete" class="inline" data-confirm="Remove <%= u.email %> as an admin?"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn sm danger-link">Remove</button></form><% } else { %><span class="pill">You</span><% } %></li><% }) %>
+    </ul>
+    <form method="post" action="/admin/account/users">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <h3>Add another admin</h3>
+      <label>Name</label><input name="name" maxlength="80">
+      <label>Email</label><input type="email" name="email" required>
+      <label>Temporary password <span class="muted">(they change it on first sign-in)</span></label><input type="text" name="password" required minlength="10" autocomplete="off">
+      <div class="form-actions"><button class="btn primary">Add admin</button></div>
+    </form>
+  </section>
+  <% } %>
+</div>
+<%- include('_foot') %>

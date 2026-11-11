@@ -1,0 +1,41 @@
+<%
+  const pageTitle = title ? `${title} | ${s.site_full_name}` : `${s.site_full_name} | ${s.tagline}`;
+  const desc = locals.description || h.excerpt(s.hero_text, 160);
+  const og = locals.ogImage || s.hero_image;
+  const nav = [['/about','About'],['/programmes','Programmes'],['/events','Events'],['/gallery','Gallery'],['/impact','Impact'],['/contact','Contact']];
+%><!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= pageTitle %></title>
+<meta name="description" content="<%= desc %>">
+<meta name="theme-color" content="#1f3d2b">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="<%= s.site_full_name %>">
+<meta property="og:title" content="<%= title || s.site_full_name %>">
+<meta property="og:description" content="<%= desc %>">
+<% if (og) { %><meta property="og:image" content="<%= baseUrl %>/uploads/<%= og %>"><meta name="twitter:card" content="summary_large_image"><% } %>
+<link rel="icon" href="/static/img/logo-mark.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/site.css">
+<script type="application/ld+json"><%- JSON.stringify({ '@context': 'https://schema.org', '@type': 'NGO', name: s.site_full_name, description: h.excerpt(s.mission, 300), url: baseUrl, logo: baseUrl + '/static/img/logo-mark.svg', foundingDate: s.stat_since, address: { '@type': 'PostalAddress', streetAddress: s.address, addressCountry: 'KE' }, email: s.email || undefined, telephone: s.phone || undefined }).replace(/</g, '\\u003c') %></script>
+</head>
+<body class="<%= locals.bodyClass || '' %>">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header" id="top">
+  <div class="wrap header-inner">
+    <a class="brand" href="/" aria-label="<%= s.site_full_name %>: home">
+      <img src="/static/img/logo-mark.svg" alt="" width="46" height="46">
+      <span><span class="brand-name"><%= s.site_name %></span><span class="brand-sub">For the Elderly · Limuru</span></span>
+    </a>
+    <button class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button>
+    <nav class="nav" id="nav" aria-label="Main">
+      <% nav.forEach(([href, label]) => { %><a href="<%= href %>" class="<%= path === href || path.startsWith(href + '/') ? 'active' : '' %>"><%= label %></a><% }) %>
+      <a class="btn btn-gold btn-sm" href="/support"><%- icon('heart') %> Support us</a>
+    </nav>
+  </div>
+</header>
+<main id="main">

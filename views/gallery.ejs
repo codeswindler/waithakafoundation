@@ -1,0 +1,20 @@
+<%- include('partials/head') %>
+<%- include('partials/page-hero', { crumb: 'Gallery', heading: 'Photos & videos', lede: 'Moments of fellowship, care and celebration with the elders of Kabuku and Limuru.' }) %>
+
+<section>
+  <div class="wrap">
+    <div class="chips">
+      <a class="chip <%= type === 'all' ? 'on' : '' %>" href="/gallery">Everything (<%= counts.photos + counts.videos %>)</a>
+      <a class="chip <%= type === 'photos' ? 'on' : '' %>" href="/gallery?type=photos">Photos (<%= counts.photos %>)</a>
+      <a class="chip <%= type === 'videos' ? 'on' : '' %>" href="/gallery?type=videos">Videos (<%= counts.videos %>)</a>
+    </div>
+    <% if (!media.length) { %>
+      <div class="empty"><h3><%= type === 'videos' ? 'Videos are on their way' : 'Our gallery is filling up' %></h3><p>We are adding photos and videos from our gatherings. Check back soon.</p></div>
+    <% } else { %>
+      <div class="masonry" data-lb-group>
+        <% media.forEach((m) => { %><%- include('partials/media-tile', { m }) %><% }) %>
+      </div>
+    <% } %>
+  </div>
+</section>
+<%- include('partials/foot') %>

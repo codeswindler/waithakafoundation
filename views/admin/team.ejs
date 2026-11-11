@@ -1,0 +1,31 @@
+<%- include('_head') %>
+<% const f = edit || {}; %>
+<div class="grid-2 wide-right">
+  <form method="post" action="/admin/team" enctype="multipart/form-data" class="card form" id="form">
+    <h2><%= edit ? 'Edit person' : 'Add a board or team member' %></h2>
+    <p class="muted small">People appear on the About page under Governance. Sponsors want to see who leads the foundation.</p>
+    <input type="hidden" name="_csrf" value="<%= csrf %>"><% if (edit) { %><input type="hidden" name="id" value="<%= f.id %>"><% } %>
+    <label>Full name *</label><input name="name" required value="<%= f.name || '' %>" maxlength="120">
+    <label>Role</label><input name="role" value="<%= f.role || '' %>" maxlength="120" placeholder="e.g. Chairperson, Executive Officer, Treasurer">
+    <label>Group</label><select name="grp"><option value="board" <%= f.grp !== 'secretariat' ? 'selected' : '' %>>Board of Directors</option><option value="secretariat" <%= f.grp === 'secretariat' ? 'selected' : '' %>>Secretariat / staff</option></select>
+    <label>Short bio <span class="muted">(optional)</span></label><textarea name="bio" rows="3" maxlength="600"><%= f.bio || '' %></textarea>
+    <label>Photo <span class="muted">(optional, square works best)</span></label>
+    <% if (f.photo) { %><div class="current-img"><img src="/uploads/<%= f.photo %>" alt=""><label class="check sm"><input type="checkbox" name="remove_image" value="1"> Remove photo</label></div><% } %>
+    <input type="file" name="image" accept="image/*">
+    <label>Order</label><input type="number" name="sort" value="<%= f.sort ?? items.length %>" class="sortbox">
+    <div class="form-actions"><button class="btn primary"><%= edit ? 'Save' : 'Add person' %></button><% if (edit) { %><a class="btn ghost" href="/admin/team">Cancel</a><% } %></div>
+  </form>
+  <section class="card">
+    <div class="card-head"><h2>People (<%= items.length %>)</h2></div>
+    <% if (!items.length) { %><p class="muted">No one added yet. The About page currently shows the governance structure (Board, Executive Officer and the three committees) without names.</p><% } %>
+    <div class="plist">
+      <% items.forEach((p) => { %>
+      <div class="pitem"><div class="plogo round"><% if (p.photo) { %><img src="/uploads/<%= p.photo %>" alt=""><% } else { %><%= p.name.split(/\s+/).map(w => w[0]).slice(0, 2).join('') %><% } %></div>
+        <div><b><%= p.name %></b><small class="muted block"><%= p.role || '' %> · <%= p.grp === 'board' ? 'Board' : 'Secretariat' %></small></div>
+        <div class="nowrap"><a class="btn sm" href="/admin/team?edit=<%= p.id %>#form">Edit</a>
+          <form method="post" action="/admin/team/<%= p.id %>/delete" class="inline" data-confirm="Remove <%= p.name %>?"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn sm danger-link">Delete</button></form></div></div>
+      <% }) %>
+    </div>
+  </section>
+</div>
+<%- include('_foot') %>

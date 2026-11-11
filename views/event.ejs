@@ -1,0 +1,78 @@
+<%- include('partials/head', { description: e.summary }) %>
+<%
+  const photos = media.filter((m) => m.kind === 'image');
+  const videos = media.filter((m) => m.kind !== 'image');
+  const ach = h.lines(e.achievements);
+  const gcal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&dates=${e.start_date.replace(/-/g,'')}${e.start_time ? 'T' + e.start_time.replace(':','') + '00' : ''}/${e.start_date.replace(/-/g,'')}${e.end_time ? 'T' + e.end_time.replace(':','') + '00' : (e.start_time ? 'T' + e.start_time.replace(':','') + '00' : '')}&ctz=Africa/Nairobi&location=${encodeURIComponent(e.venue || '')}&details=${encodeURIComponent(e.summary || '')}`;
+%>
+<section class="event-hero">
+  <% if (e.cover_file) { %><div class="bgimg"><img src="/uploads/<%= e.cover_file %>" alt=""></div><% } %>
+  <div class="wrap">
+    <div class="crumbs"><a href="/">Home</a> / <a href="/events">Events</a> / <%= isUpcoming ? 'Upcoming' : 'Past event' %></div>
+    <span class="eyebrow"><%= isUpcoming ? 'Upcoming event' : 'Event report' %></span>
+    <h1><%= e.title %></h1>
+    <div class="event-facts">
+      <span><%- icon('calendar') %><%= h.weekday(e.start_date) %>, <%= h.fmtDate(e.start_date) %></span>
+      <% if (e.start_time) { %><span><%- icon('clock') %><%= h.timeRange(e.start_time, e.end_time) %></span><% } %>
+      <% if (e.venue) { %><span><%- icon('pin') %><%= e.venue %></span><% } %>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap event-layout">
+    <article>
+      <% if (e.summary) { %><p style="font-family:var(--serif);font-size:1.4rem;line-height:1.5;color:var(--forest)"><%= e.summary %></p><% } %>
+      <% if (e.attendance) { %><div class="attend"><b><%= e.attendance %></b><span>elders and guests attended this gathering</span></div><% } %>
+      <div class="prose"><%- h.paras(e.body) %></div>
+      <% if (ach.length) { %>
+        <h2 style="font-size:1.8rem;margin-top:40px"><%= isUpcoming ? 'What to expect' : 'What we achieved' %></h2>
+        <ul class="ach-list"><% ach.forEach((a) => { %><li><%= a %></li><% }) %></ul>
+      <% } %>
+
+      <% if (videos.length) { %>
+        <h2 style="font-size:1.8rem;margin-top:44px">Videos</h2>
+        <div class="media-grid" data-lb-group><% videos.forEach((m) => { %><%- include('partials/media-tile', { m }) %><% }) %></div>
+      <% } %>
+      <% if (photos.length) { %>
+        <h2 style="font-size:1.8rem;margin-top:44px">Photos <span class="muted" style="font-size:1rem;font-family:var(--sans)">(<%= photos.length %>)</span></h2>
+        <div class="masonry" data-lb-group><% photos.forEach((m) => { %><%- include('partials/media-tile', { m }) %><% }) %></div>
+      <% } else if (!isUpcoming) { %>
+        <div class="empty" style="margin-top:30px"><h3>Photos coming soon</h3><p>We are gathering the photos from this event.</p></div>
+      <% } %>
+    </article>
+    <aside>
+      <div class="aside-card">
+        <h3><%= isUpcoming ? 'Join this event' : 'Event at a glance' %></h3>
+        <dl>
+          <div><dt>Date</dt><dd><%= h.weekday(e.start_date) %>, <%= h.fmtDate(e.start_date) %></dd></div>
+          <% if (e.start_time) { %><div><dt>Time</dt><dd><%= h.timeRange(e.start_time, e.end_time) %></dd></div><% } %>
+          <% if (e.venue) { %><div><dt>Venue</dt><dd><%= e.venue %></dd></div><% } %>
+          <% if (e.attendance) { %><div><dt>Attendance</dt><dd><%= e.attendance %> people</dd></div><% } %>
+          <% if (media.length) { %><div><dt>Media</dt><dd><%= photos.length %> photo<%= photos.length === 1 ? '' : 's' %><%= videos.length ? `, ${videos.length} video${videos.length === 1 ? '' : 's'}` : '' %></dd></div><% } %>
+        </dl>
+        <% if (isUpcoming) { %>
+          <div class="countdown" data-countdown="<%= e.start_date %>T<%= e.start_time || '09:00' %>:00+03:00" style="color:var(--forest)">
+            <div style="background:var(--forest-3)"><b data-u="d">-</b><span>Days</span></div><div style="background:var(--forest-3)"><b data-u="h">-</b><span>Hrs</span></div><div style="background:var(--forest-3)"><b data-u="m">-</b><span>Min</span></div><div style="background:var(--forest-3)"><b data-u="s">-</b><span>Sec</span></div>
+          </div>
+          <a class="btn btn-forest" href="<%= gcal %>" target="_blank" rel="noopener"><%- icon('calendar') %> Add to Google Calendar</a>
+          <a class="btn btn-line" href="/events/<%= e.slug %>.ics"><%- icon('download') %> Phone / Outlook calendar</a>
+          <a class="btn btn-gold" href="/support?event=<%= e.slug %>#form"><%- icon('hands') %> Volunteer or sponsor</a>
+        <% } else { %>
+          <a class="btn btn-gold" href="/support"><%- icon('heart') %> Sponsor the next one</a>
+        <% } %>
+        <a class="btn btn-line" href="#" data-share="<%= baseUrl %>/events/<%= e.slug %>" data-share-title="<%= e.title %>">Share this event</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<% if (related.length) { %>
+<section class="bg-paper">
+  <div class="wrap">
+    <div class="section-head reveal"><span class="eyebrow" style="color:var(--clay)">More events</span><h2>You may also like</h2></div>
+    <div class="events-grid"><% related.forEach((r, i) => { %><%- include('partials/event-card', { e: r, delay: 'd' + i }) %><% }) %></div>
+  </div>
+</section>
+<% } %>
+<%- include('partials/foot') %>

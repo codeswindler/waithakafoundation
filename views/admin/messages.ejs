@@ -1,0 +1,27 @@
+<%- include('_head') %>
+<nav class="tabs">
+  <a href="/admin/messages" class="<%= !type ? 'on' : '' %>">All</a>
+  <a href="/admin/messages?type=partner" class="<%= type === 'partner' ? 'on' : '' %>">Partners &amp; sponsors</a>
+  <a href="/admin/messages?type=volunteer" class="<%= type === 'volunteer' ? 'on' : '' %>">Volunteers</a>
+  <a href="/admin/messages?type=contact" class="<%= type === 'contact' ? 'on' : '' %>">General</a>
+</nav>
+<% if (!items.length) { %><div class="card"><p class="muted">No messages here yet. Enquiries sent from the website's Contact and Support pages arrive in this inbox.</p></div><% } %>
+<% items.forEach((m) => { %>
+<article class="card msg <%= m.is_read ? '' : 'unread' %>" id="m<%= m.id %>">
+  <div class="msg-head">
+    <span class="badge <%= m.type %>"><%= m.type === 'partner' ? 'Partner / sponsor' : m.type === 'volunteer' ? 'Volunteer' : 'Contact' %></span>
+    <b><%= m.name %></b><% if (m.organisation) { %><span class="muted">· <%= m.organisation %></span><% } %>
+    <span class="muted small right"><%= new Date(m.created_at.replace(' ', 'T') + 'Z').toLocaleString('en-GB', { timeZone: 'Africa/Nairobi', dateStyle: 'medium', timeStyle: 'short' }) %></span>
+  </div>
+  <div class="msg-contact">
+    <% if (m.email) { %><a href="mailto:<%= m.email %>?subject=<%= encodeURIComponent('Re: your message to ' + s.site_full_name) %>"><%- icon('mail') %> <%= m.email %></a><% } %>
+    <% if (m.phone) { %><a href="tel:<%= m.phone.replace(/\s/g, '') %>"><%- icon('phone') %> <%= m.phone %></a><% } %>
+  </div>
+  <% if (m.message) { %><p class="msg-body"><%= m.message %></p><% } %>
+  <div class="mrow">
+    <form method="post" action="/admin/messages/<%= m.id %>/read" class="inline"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn sm ghost"><%= m.is_read ? 'Mark unread' : 'Mark as read' %></button></form>
+    <form method="post" action="/admin/messages/<%= m.id %>/delete" class="inline" data-confirm="Delete this message?"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn sm danger-link">Delete</button></form>
+  </div>
+</article>
+<% }) %>
+<%- include('_foot') %>

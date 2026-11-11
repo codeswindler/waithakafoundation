@@ -1,0 +1,87 @@
+<%- include('partials/head') %>
+<%- include('partials/page-hero', { crumb: 'About', heading: 'Restoring hope, comfort and dignity to our elders', lede: 'A community-based organisation in Limuru Sub-County, Kiambu County, founded in ' + s.stat_since + ' by the late Waithaka\'s family.' }) %>
+
+<section>
+  <div class="wrap split wide-left">
+    <div class="reveal">
+      <span class="eyebrow" style="color:var(--clay)">Our story</span>
+      <h2>Why the Waithaka Foundation exists</h2>
+      <div class="prose"><%- h.paras(s.about_story) %></div>
+    </div>
+    <div class="photo-stack reveal d1">
+      <div class="main"><% if (s.hero_image) { %><img src="/uploads/<%= s.hero_image %>" alt="Members of the Waithaka Foundation" loading="lazy"><% } %></div>
+      <div class="badge"><b><%= s.stat_since %></b><span>Founded as a family act of giving back</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-forest">
+  <div class="wrap narrow center">
+    <span class="eyebrow">Our mission</span>
+    <p style="font-family:var(--serif);font-size:clamp(1.3rem,2.6vw,1.8rem);line-height:1.5;color:#fff" class="reveal"><%= s.mission %></p>
+    <p class="reveal" style="color:rgba(255,255,255,.75)">In providing this support, the foundation works hand in hand with the families of members, volunteers and local leaders.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head center reveal"><span class="eyebrow" style="color:var(--clay)">Core values</span><h2>What guides everything we do</h2><p>The elderly deserve safety, comfort, love and peace in their sunset years.</p></div>
+    <div class="values">
+      <% [['heart','Compassion','Serving with empathy.'],['star','Respect','Honouring the life of every senior citizen.'],['shield','Integrity','Operating with transparency and honesty.'],['users','Inclusivity','Welcoming all elderly individuals in need.'],['hands','Service','Dedicating our efforts to uplifting the vulnerable.']].forEach(([ic, t, d], i) => { %>
+      <div class="value reveal d<%= i % 3 %>"><div class="ic"><%- icon(ic) %></div><h3><%= t %></h3><p><%= d %></p></div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<section class="bg-paper">
+  <div class="wrap">
+    <div class="section-head reveal"><span class="eyebrow" style="color:var(--clay)">Objectives</span><h2>What we set out to achieve</h2></div>
+    <ol class="objectives">
+      <li class="reveal">Improve the quality of life of senior citizens through spiritual nourishment and compassionate, reliable care services.</li>
+      <li class="reveal d1">Minimise loneliness and social isolation through companionship and community engagement programming.</li>
+      <li class="reveal">Promote the physical, emotional and mental well-being of elderly persons.</li>
+      <li class="reveal d1">Support vulnerable and disadvantaged elderly individuals, especially those living alone and in poverty.</li>
+      <li class="reveal">Advocate for the rights, dignity and inclusion of elderly persons within the community.</li>
+      <li class="reveal d1">Strengthen family and community involvement in the care and support of the elderly.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="governance">
+  <div class="wrap">
+    <div class="section-head center reveal"><span class="eyebrow" style="color:var(--clay)">Governance</span><h2>Accountable by design</h2><p>The foundation is managed by a Board of Directors with a Board Secretary who serves as Executive Officer, supported by a secretariat. Three Board committees keep us transparent.</p></div>
+    <div class="org reveal">
+      <div class="node top"><b>Board of Directors</b><span>Strategic leadership &amp; oversight</span></div>
+      <div class="vline"></div>
+      <div class="node"><b>Executive Officer</b><span>Board Secretary · heads the secretariat</span></div>
+      <div class="row">
+        <div class="node"><b>Audit Committee</b><span>Financial transparency</span></div>
+        <div class="node"><b>Human Resource Committee</b><span>People &amp; volunteers</span></div>
+        <div class="node"><b>Governance Committee</b><span>Policy &amp; compliance</span></div>
+      </div>
+    </div>
+    <% if (board.length) { %>
+    <h3 class="center mt-l">Board of Directors</h3>
+    <div class="team-grid" style="margin-top:22px">
+      <% board.forEach((p) => { %><%- include('partials/person', { p }) %><% }) %>
+    </div>
+    <% } %>
+    <% if (secretariat.length) { %>
+    <h3 class="center mt-l">Secretariat</h3>
+    <div class="team-grid" style="margin-top:22px">
+      <% secretariat.forEach((p) => { %><%- include('partials/person', { p }) %><% }) %>
+    </div>
+    <% } %>
+  </div>
+</section>
+
+<section class="section-sm">
+  <div class="wrap">
+    <div class="cta-band reveal">
+      <div><h2>Walk with us</h2><p>Families, volunteers, local leaders, companies and well-wishers all have a place in this work.</p></div>
+      <div class="flex-gap"><a class="btn btn-gold" href="/support">Get involved</a><% if (s.brief_pdf === '1') { %><a class="btn btn-ghost" href="/brief.pdf" target="_blank"><%- icon('download') %> Foundation brief</a><% } %></div>
+    </div>
+  </div>
+</section>
+<%- include('partials/foot') %>

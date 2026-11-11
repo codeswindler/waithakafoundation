@@ -1,0 +1,30 @@
+<%- include('_head') %>
+<% const f = edit || {}; %>
+<div class="grid-2 wide-right">
+  <form method="post" action="/admin/partners" enctype="multipart/form-data" class="card form" id="form">
+    <h2><%= edit ? 'Edit partner' : 'Add a partner or sponsor' %></h2>
+    <p class="muted small">Partners show on the homepage and Support page. Recognising sponsors publicly encourages new ones.</p>
+    <input type="hidden" name="_csrf" value="<%= csrf %>"><% if (edit) { %><input type="hidden" name="id" value="<%= f.id %>"><% } %>
+    <label>Name *</label><input name="name" required value="<%= f.name || '' %>" maxlength="160">
+    <label>Type / tier <span class="muted">(optional)</span></label><input name="tier" value="<%= f.tier || '' %>" maxlength="60" placeholder="e.g. Event sponsor, Health partner">
+    <label>Website <span class="muted">(optional)</span></label><input name="url" type="url" value="<%= f.url || '' %>" placeholder="https://">
+    <label>Logo <span class="muted">(optional, PNG with transparent background is best)</span></label>
+    <% if (f.logo) { %><div class="current-img"><img src="/uploads/<%= f.logo %>" alt=""><label class="check sm"><input type="checkbox" name="remove_image" value="1"> Remove logo</label></div><% } %>
+    <input type="file" name="image" accept="image/*">
+    <label>Order</label><input type="number" name="sort" value="<%= f.sort ?? items.length %>" class="sortbox">
+    <div class="form-actions"><button class="btn primary"><%= edit ? 'Save' : 'Add partner' %></button><% if (edit) { %><a class="btn ghost" href="/admin/partners">Cancel</a><% } %></div>
+  </form>
+  <section class="card">
+    <div class="card-head"><h2>Partners (<%= items.length %>)</h2></div>
+    <% if (!items.length) { %><p class="muted">No partners yet. Until you add some, the website shows “Supported by well-wishers, donors and the Waithaka family” and invites organisations to become the first partner.</p><% } %>
+    <div class="plist">
+      <% items.forEach((p) => { %>
+      <div class="pitem"><div class="plogo"><% if (p.logo) { %><img src="/uploads/<%= p.logo %>" alt=""><% } else { %><%= p.name.slice(0, 2) %><% } %></div>
+        <div><b><%= p.name %></b><small class="muted block"><%= p.tier || '' %> <%= p.url || '' %></small></div>
+        <div class="nowrap"><a class="btn sm" href="/admin/partners?edit=<%= p.id %>#form">Edit</a>
+          <form method="post" action="/admin/partners/<%= p.id %>/delete" class="inline" data-confirm="Remove <%= p.name %>?"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn sm danger-link">Delete</button></form></div></div>
+      <% }) %>
+    </div>
+  </section>
+</div>
+<%- include('_foot') %>

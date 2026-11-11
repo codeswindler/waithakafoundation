@@ -1,0 +1,47 @@
+<%- include('_head', { actions: '<a class="btn primary" href="/admin/events/new">+ New event</a>' }) %>
+<% const done = checklist.filter(c => c.ok).length; %>
+<div class="kpis">
+  <a class="kpi" href="/admin/events"><b><%= counts.upcoming %></b><span>Upcoming events</span></a>
+  <a class="kpi" href="/admin/events#past"><b><%= counts.past %></b><span>Past events documented</span></a>
+  <a class="kpi" href="/admin/media"><b><%= counts.photos %></b><span>Photos</span></a>
+  <a class="kpi" href="/admin/media"><b><%= counts.videos %></b><span>Videos</span></a>
+  <a class="kpi <%= unread ? 'hot' : '' %>" href="/admin/messages"><b><%= unread %></b><span>Unread messages</span></a>
+</div>
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-head"><h2>Launch checklist</h2><span class="pill <%= done === checklist.length ? 'ok' : '' %>"><%= done %> / <%= checklist.length %> done</span></div>
+    <div class="meter"><span style="width:<%= Math.round(done / checklist.length * 100) %>%"></span></div>
+    <p class="muted small">Finish these before you share the website with sponsors.</p>
+    <ul class="checklist">
+      <% checklist.forEach((c) => { %><li class="<%= c.ok ? 'ok' : '' %>"><span class="tick"><%- c.ok ? icon('check') : '' %></span><a href="<%= c.href %>"><%= c.text %></a></li><% }) %>
+    </ul>
+  </section>
+  <section class="card">
+    <div class="card-head"><h2>Quick actions</h2></div>
+    <div class="quick">
+      <a href="/admin/events/new"><%- icon('calendar') %><b>Add an event</b><span>Upcoming gathering or past report</span></a>
+      <a href="/admin/media"><%- icon('camera') %><b>Upload photos &amp; videos</b><span>Drag and drop many at once</span></a>
+      <a href="/admin/milestones"><%- icon('star') %><b>Record an achievement</b><span>Shows on the Impact page</span></a>
+      <a href="/admin/settings#campaign"><%- icon('land') %><b>Update land campaign</b><span>Amount raised so far</span></a>
+    </div>
+  </section>
+</div>
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-head"><h2>Upcoming events</h2><a href="/admin/events">All events →</a></div>
+    <% if (!upcoming.length) { %><p class="muted">No upcoming events. <a href="/admin/events/new">Add the next gathering</a> so visitors can see what's coming.</p><% } %>
+    <ul class="rows">
+      <% upcoming.forEach((e) => { %><li><a href="/admin/events/<%= e.id %>"><span class="date"><b><%= h.fmtDay(e.start_date) %></b><%= h.fmtMon(e.start_date) %></span><span><b><%= e.title %></b><small><%= e.venue || '' %><%= e.published ? '' : ' · Hidden draft' %><%= e.sample ? ' · Example: please review' : '' %></small></span></a></li><% }) %>
+    </ul>
+  </section>
+  <section class="card">
+    <div class="card-head"><h2>Latest messages</h2><a href="/admin/messages">Inbox →</a></div>
+    <% if (!messages.length) { %><p class="muted">No messages yet. Enquiries from the Contact and Support pages will appear here.</p><% } %>
+    <ul class="rows">
+      <% messages.forEach((m) => { %><li><a href="/admin/messages#m<%= m.id %>"><span class="badge <%= m.type %>"><%= m.type %></span><span><b><%= m.name %><%= m.organisation ? ' · ' + m.organisation : '' %></b><small><%= h.excerpt(m.message, 80) %></small></span><% if (!m.is_read) { %><em class="dot"></em><% } %></a></li><% }) %>
+    </ul>
+  </section>
+</div>
+<%- include('_foot') %>

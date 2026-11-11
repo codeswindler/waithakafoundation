@@ -1,0 +1,23 @@
+# Local development database (MySQL 8.4). Start with:  docker compose up -d
+# Uses port 3418 on this computer so it does not clash with other MySQL servers.
+services:
+  db:
+    image: mysql:8.4
+    container_name: waithaka-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env}
+      MYSQL_DATABASE: waithaka
+      MYSQL_USER: waithaka
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:3418:3306"
+    volumes:
+      - waithaka_mysql:/var/lib/mysql
+      - ./deploy/mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      retries: 30
+volumes:
+  waithaka_mysql:

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Waithaka Foundation">
+  <circle cx="32" cy="32" r="31" fill="#1f3d2b"/>
+  <circle cx="32" cy="32" r="27.5" fill="none" stroke="#d9a441" stroke-width="1.2" opacity=".55"/>
+  <!-- canopy: an old, wide acacia: shelter and heritage -->
+  <path d="M12 27c3-6 10-8 15-6 2-4 9-5 12-2 4-2 10 0 12 5-2 3-7 4-11 3-3 2-8 2-11 0-5 2-12 2-17 0z" fill="#d9a441"/>
+  <!-- trunk branching into two figures leaning together -->
+  <path d="M31 25c-1 6-3 12-8 18h4c3-4 5-8 5-12 0 4 2 8 5 12h4c-5-6-7-12-8-18z" fill="#f4ead6"/>
+  <circle cx="23.5" cy="40" r="2.6" fill="#f4ead6"/>
+  <circle cx="40.5" cy="40" r="2.6" fill="#f4ead6"/>
+  <path d="M17 49c2-4 5-6 8-6s5 2 6 4c1-2 3-4 6-4s6 2 8 6z" fill="#f4ead6"/>
+</svg>

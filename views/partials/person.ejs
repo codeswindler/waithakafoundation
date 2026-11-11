@@ -1,0 +1,4 @@
+<div class="person reveal">
+  <div class="pic"><% if (p.photo) { %><img src="/uploads/<%= p.photo %>" alt="<%= p.name %>" loading="lazy"><% } else { %><span class="ini"><%= p.name.split(/\s+/).map(w => w[0]).slice(0, 2).join('') %></span><% } %></div>
+  <div class="info"><b><%= p.name %></b><% if (p.role) { %><span><%= p.role %></span><% } %><% if (p.bio) { %><p><%= p.bio %></p><% } %></div>
+</div>

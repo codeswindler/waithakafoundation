@@ -1,0 +1,17 @@
+<%- include('_head') %>
+<section class="card">
+  <div class="card-head"><h2>Upload</h2></div>
+  <%- include('_uploader', { eventId: null, events, back: '/admin/media', maxMb }) %>
+</section>
+<section class="card">
+  <div class="card-head">
+    <h2>Library (<%= media.length %>)</h2>
+    <form method="get" class="inline"><select name="event" data-autosubmit aria-label="Filter by event">
+      <option value="">All photos &amp; videos</option><option value="none" <%= filter === 'none' ? 'selected' : '' %>>Not linked to an event</option>
+      <% events.forEach((ev) => { %><option value="<%= ev.id %>" <%= String(ev.id) === filter ? 'selected' : '' %>><%= ev.title %> · <%= h.fmtDate(ev.start_date) %></option><% }) %>
+    </select><noscript><button class="btn sm">Filter</button></noscript></form>
+  </div>
+  <p class="muted small">Tick <b>Show on homepage</b> to put your best shots in the homepage gallery. <b>Use as banner</b> sets the large photo at the top of the homepage.</p>
+  <% if (!media.length) { %><p class="muted">Nothing here yet.</p><% } else { %><%- include('_media-grid', { media, back: '/admin/media' + (filter ? '?event=' + filter : ''), events }) %><% } %>
+</section>
+<%- include('_foot') %>

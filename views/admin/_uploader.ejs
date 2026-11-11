@@ -1,0 +1,23 @@
+<form method="post" action="/admin/media/upload" enctype="multipart/form-data" class="uploader" data-upload>
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <input type="hidden" name="back" value="<%= back %>">
+  <% if (eventId) { %><input type="hidden" name="event_id" value="<%= eventId %>"><% } %>
+  <label class="drop">
+    <input type="file" name="files" multiple accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime">
+    <%- icon('camera') %>
+    <b>Drag photos &amp; videos here, or click to choose</b>
+    <span>JPG, PNG, WEBP photos and MP4/WEBM videos (up to <%= locals.maxMb || 300 %> MB each). Photos are resized automatically.</span>
+    <div class="previews"></div>
+  </label>
+  <div class="fgrid">
+    <% if (!eventId && locals.events) { %>
+    <div><label>Link to event <span class="muted">(optional)</span></label>
+      <select name="event_id"><option value="">No event (general gallery)</option><% events.forEach((ev) => { %><option value="<%= ev.id %>"><%= ev.title %> · <%= h.fmtDate(ev.start_date) %></option><% }) %></select></div>
+    <% } %>
+    <div><label>Caption for these files <span class="muted">(optional)</span></label><input name="caption" maxlength="600" placeholder="e.g. Members receiving food hampers"></div>
+    <div class="full"><label>…or add YouTube video links <span class="muted">(one per line; best for long videos)</span></label><textarea name="youtube" rows="2" placeholder="https://youtu.be/..."></textarea>
+      <input name="youtube_title" maxlength="160" placeholder="Title for the YouTube video(s)" style="margin-top:8px"></div>
+  </div>
+  <div class="progress-wrap" hidden><div class="bar"><span></span></div><small>Uploading… <b>0%</b></small></div>
+  <div class="form-actions"><button class="btn primary" type="submit">Upload</button></div>
+</form>

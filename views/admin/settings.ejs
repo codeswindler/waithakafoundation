@@ -1,0 +1,98 @@
+<%- include('_head', { actions: '<a class="btn ghost" href="/" target="_blank">View website</a>' }) %>
+<% function field(key, label, opts = {}) { const v = s[key] || ''; %>
+  <div class="<%= opts.full ? 'full' : '' %>">
+    <label for="f_<%= key %>"><%= label %><% if (opts.opt) { %> <span class="muted">(optional)</span><% } %></label>
+    <% if (opts.rows) { %><textarea id="f_<%= key %>" name="<%= key %>" rows="<%= opts.rows %>" placeholder="<%= opts.ph || '' %>"><%= v %></textarea>
+    <% } else { %><input id="f_<%= key %>" name="<%= key %>" type="<%= opts.type || 'text' %>" value="<%= v %>" placeholder="<%= opts.ph || '' %>"><% } %>
+    <% if (opts.help) { %><small class="muted"><%= opts.help %></small><% } %>
+  </div>
+<% } %>
+<nav class="tabs" aria-label="Sections">
+  <a href="#homepage">Homepage</a><a href="#about">About &amp; mission</a><a href="#campaign">Land campaign</a><a href="#giving">Giving details</a><a href="#contact">Contact</a><a href="#social">Social media</a>
+</nav>
+<form method="post" action="/admin/settings" enctype="multipart/form-data" class="settings-form" data-upload>
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <input type="hidden" name="section" value="">
+
+  <section class="card form" id="homepage">
+    <div class="card-head"><h2>Homepage banner</h2></div>
+    <div class="fgrid">
+      <% field('tagline', 'Small heading above the title') %>
+      <% field('hero_title', 'Main headline', { full: true }) %>
+      <% field('hero_text', 'Introduction text', { full: true, rows: 3 }) %>
+      <div class="full"><label>Banner photo</label>
+        <div class="current-img wide"><% if (s.hero_image) { %><img src="/uploads/<%= s.hero_image %>" alt=""><% } else { %><span class="muted">No banner photo</span><% } %></div>
+        <input type="file" name="hero" accept="image/*"><small class="muted">A wide, bright photo of your elders works best. You can also pick any gallery photo with “Use as banner” on the Photos page.</small></div>
+    </div>
+    <h3>Headline numbers</h3>
+    <div class="fgrid four">
+      <% field('stat_members', 'Number') %><% field('stat_members_label', 'Label') %>
+      <% field('stat_age', 'Number') %><% field('stat_age_label', 'Label') %>
+      <% field('stat_events', 'Number') %><% field('stat_events_label', 'Label') %>
+      <% field('stat_since', 'Number') %><% field('stat_since_label', 'Label') %>
+    </div>
+    <div class="form-actions"><button class="btn primary" data-section="homepage">Save</button></div>
+  </section>
+
+  <section class="card form" id="about">
+    <div class="card-head"><h2>About &amp; mission</h2></div>
+    <div class="fgrid">
+      <% field('site_name', 'Short name') %><% field('site_full_name', 'Full name') %>
+      <% field('about_story', 'Our story (About page)', { full: true, rows: 8, help: 'Leave a blank line between paragraphs.' }) %>
+      <% field('mission', 'Mission', { full: true, rows: 4 }) %>
+      <% field('vision', 'Short statement / vision (shown as a quote)', { full: true, rows: 2 }) %>
+      <div class="full"><label class="check"><input type="checkbox" name="brief_pdf" value="1" <%= s.brief_pdf === '1' ? 'checked' : '' %>> <span><b>Offer the foundation brief PDF for download</b><small>Links to the brief dated 7 November 2026</small></span></label></div>
+    </div>
+    <div class="form-actions"><button class="btn primary" data-section="about">Save</button></div>
+  </section>
+
+  <section class="card form" id="campaign">
+    <div class="card-head"><h2>Land campaign: Waithaka Foundation Complex</h2></div>
+    <div class="fgrid">
+      <% field('campaign_title', 'Campaign title', { full: true }) %>
+      <% field('campaign_text', 'Campaign story', { full: true, rows: 4 }) %>
+      <% field('campaign_goal', 'Target amount', { ph: 'e.g. 5000000', help: 'Numbers only. The progress bar appears once a target is set.' }) %>
+      <% field('campaign_raised', 'Raised so far', { ph: 'e.g. 1250000', help: 'Update this as funds come in.' }) %>
+      <% field('currency', 'Currency') %>
+    </div>
+    <div class="form-actions"><button class="btn primary" data-section="campaign">Save</button></div>
+  </section>
+
+  <section class="card form" id="giving">
+    <div class="card-head"><h2>Giving details</h2></div>
+    <p class="muted small">Shown on the Support page with “copy” buttons. Until filled in, visitors are asked to contact you instead.</p>
+    <div class="fgrid">
+      <% field('mpesa_paybill', 'M-Pesa Paybill number', { opt: true }) %>
+      <% field('mpesa_account', 'M-Pesa account number / reference', { opt: true }) %>
+      <% field('bank_details', 'Bank transfer details', { full: true, rows: 4, opt: true, ph: 'Bank name\nAccount name\nAccount number\nBranch / SWIFT' }) %>
+    </div>
+    <div class="form-actions"><button class="btn primary" data-section="giving">Save</button></div>
+  </section>
+
+  <section class="card form" id="contact">
+    <div class="card-head"><h2>Contact details</h2></div>
+    <div class="fgrid">
+      <% field('phone', 'Phone', { ph: '07XX XXX XXX' }) %>
+      <% field('whatsapp', 'WhatsApp number', { opt: true, ph: '07XX XXX XXX' }) %>
+      <% field('email', 'Email', { type: 'email' }) %>
+      <% field('address', 'Location / address') %>
+      <% field('notify_email', 'Send website enquiries to', { type: 'email', opt: true, help: emailReady ? 'Each new partner, volunteer or contact message is emailed here as well as saved in Messages.' : 'Email alerts also need SMTP settings on the server (see README). Messages are always saved in Admin → Messages.' }) %>
+    </div>
+    <div class="form-actions"><button class="btn primary" data-section="contact">Save</button></div>
+  </section>
+
+  <section class="card form" id="social">
+    <div class="card-head"><h2>Social media</h2></div>
+    <p class="muted small">Paste full links to your pages. Icons appear in the website footer.</p>
+    <div class="fgrid">
+      <% field('facebook', 'Facebook', { ph: 'https://facebook.com/...' }) %>
+      <% field('instagram', 'Instagram', { ph: 'https://instagram.com/...' }) %>
+      <% field('youtube', 'YouTube', { ph: 'https://youtube.com/@...' }) %>
+      <% field('x', 'X (Twitter)', { ph: 'https://x.com/...' }) %>
+      <% field('tiktok', 'TikTok', { ph: 'https://tiktok.com/@...' }) %>
+    </div>
+    <div class="form-actions"><button class="btn primary" data-section="social">Save</button></div>
+  </section>
+  <div class="progress-wrap" hidden><div class="bar"><span></span></div><small>Saving… <b>0%</b></small></div>
+</form>
+<%- include('_foot') %>

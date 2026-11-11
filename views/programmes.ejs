@@ -1,0 +1,54 @@
+<%- include('partials/head') %>
+<%- include('partials/page-hero', { crumb: 'Programmes', heading: 'Care that shows up every month', lede: 'Our programmes reduce loneliness, put food on the table and keep our elders healthy, delivered at monthly gatherings in Kabuku and Limuru.' }) %>
+
+<%
+const progs = [
+  { ic: 'users', t: 'Companionship & Emotional Support', d: 'Monthly meetings for fellowship, conversation, listening and emotional support. These forums reduce loneliness, depression and social isolation, and give elders a place to be seen and heard. Gatherings are held in rented halls and open grounds.', pts: ['Monthly fellowship meetings', 'Listening and emotional support', 'Spiritual nourishment and song', 'Community and family engagement'] },
+  { ic: 'food', t: 'Food & Essential Supplies', d: 'At every monthly gathering, the foundation distributes food stuff and other essential home supplies, so that no elder in our care goes without the basics.', pts: ['Food stuff for every member', 'Essential home supplies', 'Priority for elders living alone or in poverty'] },
+  { ic: 'health', t: 'Health & Wellness Support', d: 'We organise health check-ups and referrals to health facilities for our senior citizens, and arrange follow-up support for members living with chronic illnesses.', pts: ['Regular health check-ups', 'Referrals to health facilities', 'Follow-up for chronic illness', 'Medical supplies'] },
+];
+%>
+<section>
+  <div class="wrap">
+    <% progs.forEach((p, i) => { const ph = photos[i]; %>
+    <div class="split reveal" style="margin-bottom:90px<%= i % 2 ? ';direction:rtl' : '' %>">
+      <div style="direction:ltr">
+        <div class="photo-stack">
+          <div class="main" style="aspect-ratio:4/3;background:var(--forest);display:grid;place-items:center">
+            <% if (ph) { %><img src="/uploads/<%= ph.file %>" alt="<%= ph.title || p.t %>" loading="lazy"><% } else { %><span style="color:var(--gold-2);width:90px"><%- icon(p.ic) %></span><% } %>
+          </div>
+          <div class="badge"><b>0<%= i + 1 %></b><span><%= p.t %></span></div>
+        </div>
+      </div>
+      <div style="direction:ltr">
+        <span class="eyebrow" style="color:var(--clay)">Programme 0<%= i + 1 %></span>
+        <h2><%= p.t %></h2>
+        <p class="prose"><%= p.d %></p>
+        <ul class="ach-list"><% p.pts.forEach((x) => { %><li><%= x %></li><% }) %></ul>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+</section>
+
+<section class="bg-forest">
+  <div class="wrap">
+    <div class="section-head center reveal"><span class="eyebrow">How a gathering comes together</span><h2>What it takes to host our elders each month</h2><p>Each monthly event is supported by well-wishers, donors and the Waithaka family. These are the costs your support covers.</p></div>
+    <div class="funds-list">
+      <% [['building','Venue','Rent of premises and facilities'],['food','Food & supplies','Food stuff and essential home items'],['mic','Facilitators','Hire of facilitators and speakers'],['pill','Medical supplies','Check-ups and basic medication'],['bus','Transport','Bringing elders to and from the venue']].forEach(([ic, t, d], i) => { %>
+      <div class="fund reveal d<%= i % 3 %>"><%- icon(ic) %><b><%= t %></b><span><%= d %></span></div>
+      <% }) %>
+    </div>
+    <p class="center" style="margin-top:40px"><a class="btn btn-gold" href="/support">Sponsor a monthly gathering</a></p>
+  </div>
+</section>
+
+<section class="section-sm">
+  <div class="wrap">
+    <div class="cta-band reveal">
+      <div><h2>See the programmes in action</h2><p>Browse photos, videos and reports from our past gatherings.</p></div>
+      <div class="flex-gap"><a class="btn btn-gold" href="/events#past">Past events</a><a class="btn btn-ghost" href="/gallery">Gallery</a></div>
+    </div>
+  </div>
+</section>
+<%- include('partials/foot') %>

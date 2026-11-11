@@ -1,0 +1,3 @@
+<%- include('_head', { flash: null, unread: locals.unread || 0, csrf: locals.csrf || '' }) %>
+<div class="card"><h2><%= status === 403 ? 'Please try again' : status === 400 ? 'Something needs fixing' : 'Something went wrong' %></h2><p><%= message %></p><a class="btn primary" href="/admin" data-back>← Go back</a> <a class="btn ghost" href="/admin">Dashboard</a></div>
+<%- include('_foot') %>

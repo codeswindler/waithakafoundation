@@ -1,0 +1,36 @@
+<%- include('partials/head') %>
+<%- include('partials/page-hero', { crumb: 'Contact', heading: 'We would love to hear from you', lede: 'Families, well-wishers, partners and the press: reach the Waithaka Foundation here.' }) %>
+<% const f = locals.form || {}; %>
+<section id="form">
+  <div class="wrap split">
+    <div class="reveal">
+      <h2>Get in touch</h2>
+      <ul class="contact-list" style="margin-top:24px">
+        <li><span class="ic"><%- icon('pin') %></span><div><small>Where we serve</small><b><%= s.address %></b></div></li>
+        <% if (s.phone) { %><li><span class="ic"><%- icon('phone') %></span><div><small>Call us</small><a href="tel:<%= s.phone.replace(/\s/g,'') %>"><%= s.phone %></a></div></li><% } %>
+        <% if (s.whatsapp) { %><li><span class="ic"><%- icon('whatsapp') %></span><div><small>WhatsApp</small><a href="https://wa.me/<%= h.waNumber(s.whatsapp) %>" target="_blank" rel="noopener"><%= s.whatsapp %></a></div></li><% } %>
+        <% if (s.email) { %><li><span class="ic"><%- icon('mail') %></span><div><small>Email</small><a href="mailto:<%= s.email %>"><%= s.email %></a></div></li><% } %>
+        <li><span class="ic"><%- icon('calendar') %></span><div><small>Gatherings</small><b>Monthly, in Kabuku &amp; Limuru</b></div></li>
+      </ul>
+      <div class="map"><iframe title="Map of Limuru, Kiambu County" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=<%= encodeURIComponent(s.address) %>&output=embed"></iframe></div>
+    </div>
+    <div class="form-card reveal d1">
+      <h3>Send a message</h3>
+      <% if (locals.sent) { %><div class="alert ok"><b>Thank you!</b> Your message has been received. We will reply as soon as we can.</div><% } %>
+      <% if (locals.errors) { %><div class="alert err">Please check the form:<ul><% errors.forEach((e) => { %><li><%= e %></li><% }) %></ul></div><% } %>
+      <form method="post" action="/contact#form" data-timed>
+        <input type="hidden" name="type" value="contact">
+        <div class="form-grid">
+          <div class="full"><label for="name">Your name</label><input type="text" id="name" name="name" required value="<%= f.name || '' %>" autocomplete="name"></div>
+          <div><label for="email">Email</label><input type="email" id="email" name="email" value="<%= f.email || '' %>" autocomplete="email"></div>
+          <div><label for="phone">Phone</label><input type="tel" id="phone" name="phone" value="<%= f.phone || '' %>" autocomplete="tel" placeholder="07XX XXX XXX"></div>
+          <div class="full"><label for="message">Message</label><textarea id="message" name="message" required><%= f.message || '' %></textarea></div>
+          <div class="hp" aria-hidden="true"><label>Leave empty<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+          <input type="hidden" name="t" value="">
+          <div class="full"><button class="btn btn-gold" type="submit">Send message</button> <span class="muted" style="font-size:.88rem;margin-left:8px">Email or phone so we can reply.</span></div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+<%- include('partials/foot') %>

@@ -1,0 +1,27 @@
+<%- include('_head') %>
+<% const f = edit || {}; %>
+<div class="grid-2 wide-right">
+  <form method="post" action="/admin/milestones" class="card form" id="form">
+    <h2><%= edit ? 'Edit milestone' : 'Add a milestone or achievement' %></h2>
+    <p class="muted small">Milestones appear on the homepage timeline and on the Impact page: the story sponsors read about your track record.</p>
+    <input type="hidden" name="_csrf" value="<%= csrf %>"><% if (edit) { %><input type="hidden" name="id" value="<%= f.id %>"><% } %>
+    <label>When</label><input name="period" value="<%= f.period || '' %>" maxlength="40" placeholder="e.g. 2025, March 2026, Ongoing">
+    <label>Title *</label><input name="title" required value="<%= f.title || '' %>" maxlength="160" placeholder="e.g. 500 food hampers delivered">
+    <label>Description</label><textarea name="description" rows="4" maxlength="1000"><%= f.description || '' %></textarea>
+    <label>Order</label><input type="number" name="sort" value="<%= f.sort ?? items.length %>" class="sortbox"><small class="muted">Lower numbers show first.</small>
+    <div class="form-actions"><button class="btn primary"><%= edit ? 'Save' : 'Add milestone' %></button><% if (edit) { %><a class="btn ghost" href="/admin/milestones">Cancel</a><% } %></div>
+  </form>
+  <section class="card">
+    <div class="card-head"><h2>Timeline (<%= items.length %>)</h2></div>
+    <ol class="tl-admin">
+      <% items.forEach((m) => { %>
+      <li>
+        <div><small><%= m.period %></small><b><%= m.title %></b><p class="muted small"><%= m.description %></p></div>
+        <div class="nowrap"><a class="btn sm" href="/admin/milestones?edit=<%= m.id %>#form">Edit</a>
+          <form method="post" action="/admin/milestones/<%= m.id %>/delete" class="inline" data-confirm="Delete this milestone?"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn sm danger-link">Delete</button></form></div>
+      </li>
+      <% }) %>
+    </ol>
+  </section>
+</div>
+<%- include('_foot') %>

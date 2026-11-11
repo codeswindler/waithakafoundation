@@ -1,0 +1,157 @@
+<%- include('partials/head', { bodyClass: 'home' }) %>
+
+<section class="hero" style="padding:0">
+  <div class="hero-media"><% if (s.hero_image) { %><img src="/uploads/<%= s.hero_image %>" alt="Elders of the Waithaka Foundation at a fellowship gathering" fetchpriority="high"><% } %></div>
+  <div class="wrap hero-inner">
+    <div>
+      <span class="eyebrow"><%= s.tagline %></span>
+      <h1><%= s.hero_title %></h1>
+      <p class="hero-lede"><%= s.hero_text %></p>
+      <div class="hero-ctas">
+        <a class="btn btn-gold" href="/support"><%- icon('heart') %> Support our elders</a>
+        <a class="btn btn-ghost" href="/events">See our events <%- icon('arrow') %></a>
+      </div>
+    </div>
+    <% if (next) { %>
+    <aside class="next-card">
+      <span class="label"><%= next.featured ? 'Featured event' : 'Next gathering' %></span>
+      <h3><%= next.title %></h3>
+      <div class="meta"><%= h.weekday(next.start_date) %>, <%= h.fmtDate(next.start_date) %><%= next.venue ? ' · ' + next.venue : '' %></div>
+      <div class="countdown" data-countdown="<%= next.start_date %>T<%= next.start_time || '09:00' %>:00+03:00">
+        <div><b data-u="d">-</b><span>Days</span></div><div><b data-u="h">-</b><span>Hours</span></div><div><b data-u="m">-</b><span>Mins</span></div><div><b data-u="s">-</b><span>Secs</span></div>
+      </div>
+      <a class="link" href="/events/<%= next.slug %>">Event details →</a>
+    </aside>
+    <% } %>
+  </div>
+  <span class="scroll-cue" aria-hidden="true"></span>
+</section>
+
+<section class="stats-band" aria-label="The foundation in numbers">
+  <div class="wrap stats">
+    <div class="stat"><b data-count="<%= s.stat_members %>"><%= s.stat_members %></b><span><%= s.stat_members_label %></span></div>
+    <div class="stat"><b><%= s.stat_age %></b><span><%= s.stat_age_label %></span></div>
+    <div class="stat"><b data-count="<%= s.stat_events %>"><%= s.stat_events %></b><span><%= s.stat_events_label %></span></div>
+    <div class="stat"><b><%= s.stat_since %></b><span><%= s.stat_since_label %></span></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap split">
+    <div class="photo-stack reveal">
+      <div class="main"><% if (s.hero_image) { %><img src="/uploads/<%= s.hero_image %>" alt="Elders sharing fellowship" loading="lazy"><% } %></div>
+      <div class="badge"><b><%= s.stat_members %></b><span>senior citizens over 80 we walk with every month</span></div>
+    </div>
+    <div class="reveal d1">
+      <span class="eyebrow" style="color:var(--clay)">Who we are</span>
+      <h2>The elderly are the pillars of our community</h2>
+      <p>The Waithaka Foundation is a non-profit Community Based Organization started in <%= s.stat_since %> by the late Waithaka's family to give back to Kabuku and Limuru. We restore hope, comfort and dignity to senior citizens facing isolation, poverty and poor health.</p>
+      <blockquote class="pull"><%= s.vision %></blockquote>
+      <div class="flex-gap"><a class="btn btn-forest" href="/about">Our story &amp; mission</a><% if (s.brief_pdf === '1') { %><a class="btn btn-line" href="/brief.pdf" target="_blank"><%- icon('file') %> Read our brief</a><% } %></div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-forest">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <span class="eyebrow">What we do</span>
+      <h2>Three programmes. One monthly promise.</h2>
+      <p>Every month we bring our elders together, feed them, check on their health and remind them they are loved.</p>
+    </div>
+    <div class="cards-3">
+      <div class="prog reveal"><span class="num">01</span><div class="ic"><%- icon('users') %></div><h3>Companionship &amp; emotional support</h3><p>Monthly fellowship meetings for conversation, listening and support that ease loneliness, depression and isolation.</p></div>
+      <div class="prog reveal d1"><span class="num">02</span><div class="ic"><%- icon('food') %></div><h3>Food &amp; essential supplies</h3><p>Food stuff and essential home supplies handed to every member at each monthly gathering.</p></div>
+      <div class="prog reveal d2"><span class="num">03</span><div class="ic"><%- icon('health') %></div><h3>Health &amp; wellness</h3><p>Health check-ups, referrals to health facilities and follow-up for elders living with chronic illness.</p></div>
+    </div>
+    <p class="center" style="margin-top:36px"><a class="btn btn-ghost" href="/programmes">How our programmes work <%- icon('arrow') %></a></p>
+  </div>
+</section>
+
+<% if (upcoming.length) { %>
+<section>
+  <div class="wrap">
+    <div class="head-row">
+      <div class="section-head reveal"><span class="eyebrow">Upcoming</span><h2>Join us at our next gatherings</h2></div>
+      <a class="btn btn-line reveal" href="/events">All events <%- icon('arrow') %></a>
+    </div>
+    <div class="events-grid">
+      <% upcoming.forEach((e, i) => { %><%- include('partials/event-card', { e, delay: 'd' + i }) %><% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<section class="campaign section-sm">
+  <div class="wrap"><%- include('partials/campaign') %></div>
+</section>
+
+<% if (past.length) { %>
+<section>
+  <div class="wrap">
+    <div class="head-row">
+      <div class="section-head reveal"><span class="eyebrow">Our track record</span><h2>What we have done together</h2><p>Highlights, photos and outcomes from our recent gatherings.</p></div>
+      <a class="btn btn-line reveal" href="/events#past">All past events <%- icon('arrow') %></a>
+    </div>
+    <div class="events-grid">
+      <% past.forEach((e, i) => { %><%- include('partials/event-card', { e, delay: 'd' + i }) %><% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<% if (featuredMedia.length) { %>
+<section class="bg-paper">
+  <div class="wrap">
+    <div class="head-row">
+      <div class="section-head reveal"><span class="eyebrow">Gallery</span><h2>Moments with our elders</h2></div>
+      <a class="btn btn-line reveal" href="/gallery"><%- icon('camera') %> Open the gallery</a>
+    </div>
+    <div class="gallery-strip n<%= Math.min(featuredMedia.length, 5) %>" data-lb-group>
+      <% featuredMedia.slice(0, 5).forEach((m) => { %><%- include('partials/media-tile', { m }) %><% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<section>
+  <div class="wrap">
+    <div class="section-head center reveal"><span class="eyebrow">Our journey</span><h2>Milestones so far</h2></div>
+    <div class="ms-grid">
+      <% milestones.forEach((m, i) => { %>
+      <div class="ms reveal d<%= i % 3 %>"><span class="when"><%= m.period %></span><h3><%= m.title %></h3><% if (m.description) { %><p><%= m.description %></p><% } %></div>
+      <% }) %>
+    </div>
+    <p class="center" style="margin-top:36px"><a class="btn btn-line" href="/impact">See our full impact</a></p>
+  </div>
+</section>
+
+<section class="bg-gold section-sm">
+  <div class="wrap">
+    <div class="section-head center reveal" style="margin-bottom:30px"><span class="eyebrow">Partners &amp; sponsors</span><h2><%= partners.length ? 'Thank you to those who walk with us' : 'Supported by well-wishers, donors and the Waithaka family' %></h2></div>
+    <% if (partners.length) { %>
+    <div class="partners">
+      <% partners.forEach((p) => { %>
+      <a class="partner reveal" <% if (p.url) { %>href="<%= h.safeUrl(p.url) %>" target="_blank" rel="noopener"<% } %>><% if (p.logo) { %><img src="/uploads/<%= p.logo %>" alt="<%= p.name %>" loading="lazy"><% } else { %><span><%= p.name %><% if (p.tier) { %><small><%= p.tier %></small><% } %></span><% } %></a>
+      <% }) %>
+      <a class="partner cta reveal" href="/support#form"><span>Your organisation here<small>Become a partner →</small></span></a>
+    </div>
+    <% } else { %>
+    <div class="center reveal">
+      <p class="muted" style="max-width:620px;margin:0 auto 22px">Companies, churches, community groups and friends of the foundation: sponsor a monthly gathering and see your support documented here with photos and reports.</p>
+      <a class="btn btn-forest" href="/support#form"><%- icon('handshake') %> Become our partner</a>
+    </div>
+    <% } %>
+  </div>
+</section>
+
+<section class="section-sm">
+  <div class="wrap">
+    <div class="cta-band reveal">
+      <div><h2>Every elder deserves a dignified sunset</h2><p>Sponsor a monthly gathering, fund health check-ups, or help us buy land for a permanent home.</p></div>
+      <a class="btn btn-gold" href="/support"><%- icon('heart') %> Ways to give</a>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/foot') %>
