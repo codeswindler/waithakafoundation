@@ -153,7 +153,6 @@ const DEFAULT_SETTINGS = {
   bank_details: '',
   facebook: '', instagram: '', youtube: '', x: '', tiktok: '',
   notify_email: '',
-  brief_pdf: '1',
 };
 
 let cache = null, cachedAt = 0;

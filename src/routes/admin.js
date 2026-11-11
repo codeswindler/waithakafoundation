@@ -302,11 +302,10 @@ simpleCrud({ name: 'partners', table: 'partners', view: 'admin/partners', title:
 simpleCrud({ name: 'team', table: 'team', view: 'admin/team', title: 'Board & team', fields: ['name', 'role', 'bio', 'grp', 'sort'], imageField: 'photo' });
 
 // ---------------- settings ----------------
-const EDITABLE = Object.keys(DEFAULT_SETTINGS).filter((k) => !['hero_image', 'brief_pdf'].includes(k));
+const EDITABLE = Object.keys(DEFAULT_SETTINGS).filter((k) => k !== 'hero_image');
 router.get('/settings', (req, res) => res.render('admin/settings', { title: 'Site content & settings', emailReady: !!process.env.SMTP_HOST }));
 router.post('/settings', M.upload.single('hero'), checkCsrf, wrap(async (req, res) => {
   for (const k of EDITABLE) if (k in req.body) await setSetting(k, String(req.body[k]).trim().slice(0, 10000));
-  await setSetting('brief_pdf', req.body.brief_pdf ? '1' : '0');
   if (req.file) {
     const id = await M.saveUpload(req.file, { title: 'Homepage banner', featured: 1 });
     const m = await get('SELECT * FROM media WHERE id=?', id);

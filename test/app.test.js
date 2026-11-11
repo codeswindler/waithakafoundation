@@ -85,7 +85,7 @@ test('every public page renders with the brief content', async () => {
     assert.ok(!/undefined|NaN|\[object Object\]/.test(r.text_.replace(/<script[\s\S]*?<\/script>/g, '')), `${url} has a rendering glitch`);
   }
   assert.equal((await c.req('GET', '/does-not-exist')).status, 404);
-  assert.equal((await c.req('GET', '/brief.pdf')).status, 200);
+  assert.equal((await c.req('GET', '/brief.pdf')).status, 404, 'the brief PDF is not published');
   assert.ok(Object.keys(c.jar).length === 0, 'public pages must not set cookies');
 });
 

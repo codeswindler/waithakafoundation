@@ -35,7 +35,6 @@ async function createApp() {
   app.use(compression());
   app.use('/static', express.static(path.join(__dirname, '..', 'public'), { maxAge: process.env.NODE_ENV === 'production' ? '7d' : 0 }));
   app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '30d', immutable: true, index: false, dotfiles: 'deny' }));
-  app.get('/brief.pdf', (req, res) => res.sendFile(path.join(__dirname, '..', 'seed', 'foundation-brief.pdf')));
   app.get('/manifest.webmanifest', async (req, res, next) => {
     try {
       const st = await getSettings();
