@@ -333,3 +333,15 @@ test('real past gatherings are imported once with their photos, replacing invent
   const one = await (await fetch(base + '/events/' + evs[0].slug)).text();
   assert.ok((one.match(/data-lb="image"/g) || []).length >= list[0].photos.length, 'event page shows its photos');
 });
+
+test('homepage carousels include every photo; gallery shows them all', async () => {
+  const images = Number((await db.get("SELECT COUNT(*) c FROM media WHERE kind='image'")).c);
+  const wide = Number((await db.get("SELECT COUNT(*) c FROM media WHERE kind='image' AND width >= height * 1.25")).c);
+  const home = await (await fetch(base + '/')).text();
+  assert.equal((home.match(/class="fade-slide/g) || []).length, images, 'Moments showcase has every photo');
+  assert.ok((home.match(/class="slide/g) || []).length >= wide, 'banner slideshow has every wide photo');
+  assert.ok(home.includes('hero-counter'), 'many photos: counter instead of dots');
+  assert.ok((home.match(/<img class="slide[^>]* src=/g) || []).length <= 1, 'only the first banner photo loads up front');
+  const gallery = await (await fetch(base + '/gallery')).text();
+  assert.ok((gallery.match(/data-lb="image"/g) || []).length >= images, 'gallery shows every photo');
+});

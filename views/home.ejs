@@ -7,7 +7,8 @@
       <% } else { %><img class="slide" data-src="/uploads/<%= sl.file %>" data-srcset="<%= h.srcset(sl.file) %>" sizes="100vw" alt=""><% } %>
     <% }) %>
   </div>
-  <% if (slides.length > 1) { %><div class="hero-dots" role="group" aria-label="Background photos"><% slides.forEach((sl, i) => { %><button type="button" aria-label="Show photo <%= i + 1 %> of <%= slides.length %>"<%- i === 0 ? ' aria-current="true"' : '' %>></button><% }) %></div><% } %>
+  <% if (slides.length > 1 && slides.length <= 8) { %><div class="hero-dots" role="group" aria-label="Background photos"><% slides.forEach((sl, i) => { %><button type="button" aria-label="Show photo <%= i + 1 %> of <%= slides.length %>"<%- i === 0 ? ' aria-current="true"' : '' %>></button><% }) %></div>
+  <% } else if (slides.length > 8) { %><div class="hero-dots hero-counter" role="group" aria-label="Background photos"><button type="button" data-step="-1" aria-label="Previous photo"><%- icon('left') %></button><span><b>1</b> / <%= slides.length %></span><button type="button" data-step="1" aria-label="Next photo"><%- icon('right') %></button></div><% } %>
   <div class="wrap hero-inner">
     <div>
       <span class="eyebrow"><%= s.tagline %></span>
@@ -132,7 +133,7 @@
       </div>
       <% if (pics.length > 1) { %>
       <div class="fader-thumbs" role="tablist" aria-label="Choose a photo">
-        <% pics.forEach((m, i) => { %><button type="button" role="tab" aria-label="<%= m.title || ('Photo ' + (i + 1)) %>" aria-selected="<%= i === 0 %>"<%- i === 0 ? ' class="on"' : '' %>><img src="/uploads/<%= m.thumb || m.file %>" alt="" loading="lazy"></button><% }) %>
+        <% pics.forEach((m, i) => { %><button type="button" role="tab" aria-label="<%= m.title || ('Photo ' + (i + 1)) %>" aria-selected="<%= i === 0 %>"<%- i === 0 ? ' class="on"' : '' %>><img src="/uploads/<%= m.thumb || m.file %>" alt=""<%- i < 8 ? '' : ' loading="lazy"' %>></button><% }) %>
       </div>
       <% } %>
     </div>

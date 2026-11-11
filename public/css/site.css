@@ -728,3 +728,14 @@ textarea { min-height: 140px; resize: vertical; }
 .gallery-head .when { display: block; font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--clay); margin-bottom: 4px; }
 .gallery-group .masonry { columns: 3 260px; }
 @media (max-width: 760px) { .gallery-group { margin-bottom: 40px; } .gallery-group .masonry { columns: 2 140px; column-gap: 10px; } .gallery-group .masonry .tile { margin-bottom: 10px; } .gallery-head .btn { width: auto; min-height: 40px; } }
+
+/* Banner counter (used instead of dots when there are many photos) */
+.hero-counter { align-items: center; gap: 4px; background: rgba(18,6,32,.55); border-radius: 999px; padding: 3px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.hero-counter button { width: 30px !important; height: 30px !important; border-radius: 50% !important; background: transparent !important; color: #fff; display: grid; place-items: center; }
+.hero-counter button:hover { background: rgba(255,255,255,.18) !important; }
+.hero-counter button svg { width: 16px; height: 16px; }
+.hero-counter span { color: rgba(255,255,255,.9); font-size: .8rem; min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; }
+.hero-counter b { color: var(--gold-2); }
+/* A touch lighter gold for the banner label, for headroom across every slideshow photo */
+@media (min-width: 901px) { .hero .eyebrow { color: #F5E2AC; } }
+@media (max-width: 900px) { .hero-counter { top: calc(100vw * 2 / 3 - 58px); } }

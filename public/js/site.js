@@ -127,6 +127,7 @@
         next.classList.add('on', 'fading');
         cur = n;
         dots.forEach(function (b, i) { if (i === n) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+        if (counterNum) counterNum.textContent = n + 1;
         // Once the new photo fully covers the old one, quietly retire the old one.
         clearTimeout(cleanT);
         cleanT = setTimeout(function () { if (prev !== slides[cur]) { prev.classList.remove('under'); prev.style.transform = ''; } }, 2400);
@@ -134,6 +135,8 @@
       });
     };
     var play = function () { clearInterval(timer); if (!reduce) timer = setInterval(function () { if (!d.hidden) go(cur + 1); }, DELAY); };
+    var counterNum = d.querySelector('.hero-counter b');
+    if (counterNum) { dots = []; d.querySelectorAll('.hero-counter [data-step]').forEach(function (b) { b.addEventListener('click', function () { go(cur + Number(b.dataset.step)); play(); }); }); }
     dots.forEach(function (b, i) { b.addEventListener('click', function () { go(i); play(); }); });
     window.addEventListener('load', function () { setTimeout(function () { load(slides[1]); }, 1200); });
     play();
@@ -166,7 +169,8 @@
         prev.setAttribute('aria-hidden', 'true'); prev.tabIndex = -1;
         next.removeAttribute('aria-hidden'); next.tabIndex = 0;
         thumbs.forEach(function (t, i) { t.classList.toggle('on', i === n); t.setAttribute('aria-selected', i === n); });
-        if (thumbs[n]) thumbs[n].scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+        // Keep the active thumbnail centred by scrolling only the strip (never the page)
+        if (thumbs[n]) { var strip = thumbs[n].parentNode; strip.scrollTo({ left: thumbs[n].offsetLeft - strip.offsetLeft - (strip.clientWidth - thumbs[n].offsetWidth) / 2, behavior: 'smooth' }); }
         if (count) count.textContent = n + 1;
         cur = n;
         clearTimeout(cleanT);
