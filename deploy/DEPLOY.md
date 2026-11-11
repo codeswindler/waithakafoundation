@@ -16,6 +16,8 @@ DNS can take a few minutes to a few hours. Check with `ping waithakafoundation.o
 
 ## 2. Install the software
 
+Skip anything already on the server (Node 22+, Nginx, MySQL, PM2 and Certbot are often there already).
+
 ```bash
 sudo apt update && sudo apt -y upgrade
 # Node.js 22 LTS
@@ -72,7 +74,7 @@ EOF
 chmod 600 .env
 ```
 
-`PORT`, `BASE_URL`, `COOKIE_SECURE` and `NODE_ENV` are already set by `ecosystem.config.js` (production).
+`PORT` (3460), `BASE_URL`, `COOKIE_SECURE` and `NODE_ENV` are already set by `ecosystem.config.js` (production). Port 3460 avoids the common 3000; check it is free first with `sudo ss -ltnp | grep ':3460 '` (no output means free). If it is taken, change it in both `ecosystem.config.js` and `deploy/nginx-waithakafoundation.conf`.
 
 ## 6. Start with PM2
 
@@ -82,7 +84,7 @@ pm2 save
 pm2 startup            # run the command it prints, so the site starts on boot
 pm2 install pm2-logrotate
 cat data/ADMIN_CREDENTIALS.txt   # first admin login; delete the file after signing in
-curl -s http://127.0.0.1:3000/healthz   # {"ok":true}
+curl -s http://127.0.0.1:3460/healthz   # {"ok":true}
 ```
 
 ## 7. Nginx + HTTPS
@@ -90,7 +92,6 @@ curl -s http://127.0.0.1:3000/healthz   # {"ok":true}
 ```bash
 sudo cp deploy/nginx-waithakafoundation.conf /etc/nginx/sites-available/waithakafoundation
 sudo ln -s /etc/nginx/sites-available/waithakafoundation /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
 sudo certbot --nginx -d waithakafoundation.org -d www.waithakafoundation.org --redirect
 ```
@@ -128,4 +129,4 @@ Content (events, photos, settings) lives in MySQL and `uploads/`, so updates nev
 | `pm2 status` | is it running |
 | `pm2 logs waithaka` | live logs |
 | `pm2 reload waithaka` | restart without downtime |
-| `curl -s 127.0.0.1:3000/healthz` | app + database check |
+| `curl -s 127.0.0.1:3460/healthz` | app + database check |

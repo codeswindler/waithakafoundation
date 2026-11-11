@@ -22,8 +22,8 @@ module.exports = {
       out_file: './logs/out.log',
       error_file: './logs/error.log',
       merge_logs: true,
-      env: { NODE_ENV: 'development', PORT: 3000 },
-      env_production: { NODE_ENV: 'production', PORT: 3000, HOST: '127.0.0.1', COOKIE_SECURE: '1', BASE_URL: 'https://waithakafoundation.org' },
+      env: { NODE_ENV: 'development', PORT: 3460 },
+      env_production: { NODE_ENV: 'production', PORT: 3460, HOST: '127.0.0.1', COOKIE_SECURE: '1', BASE_URL: 'https://waithakafoundation.org' },
     },
   ],
 };
