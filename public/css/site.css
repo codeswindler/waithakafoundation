@@ -546,42 +546,61 @@ textarea { min-height: 140px; resize: vertical; }
 /* Logo keeps a crisp gold edge where it sits on purple */
 .site-footer .brand img, .home .site-header:not(.scrolled) .brand img { border-radius: 50%; box-shadow: 0 0 0 2px rgba(226,194,106,.55); }
 
-/* ================= Hero slideshow (cross-fade with slow drift) ================= */
-.hero-media .slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.08); transition: opacity 1.8s ease; animation: none; }
-.hero-media .slide.on { opacity: 1; animation: heroDrift 9s ease-out forwards; }
-.hero-media .slide.was { opacity: 0; transform: scale(1); }
-@keyframes heroDrift { from { transform: scale(1.08); } to { transform: scale(1); } }
+/* ================= Hero slideshow: true cross-dissolve =================
+   The incoming photo fades in ON TOP while the outgoing one stays fully visible underneath,
+   so there is never a moment where the background shows through. Each photo drifts slowly
+   from the moment it starts appearing, and keeps drifting while it is covered (no jump). */
+.hero-media .slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; z-index: 0; animation: none; }
+.hero-media .slide.under { opacity: 1; z-index: 1; }
+.hero-media .slide.on { opacity: 1; z-index: 2; animation: heroDrift 14s linear forwards; }
+.hero-media .slide.on.fading { animation: heroFadeIn 2.2s ease-in-out forwards, heroDrift 14s linear forwards; }
+@keyframes heroDrift { from { transform: scale(1.1); } to { transform: scale(1.0); } }
+@keyframes heroFadeIn { from { opacity: 0; } to { opacity: 1; } }
 .hero-dots { position: absolute; z-index: 3; right: 28px; bottom: 26px; display: flex; gap: 8px; }
-.hero-dots button { width: 10px; height: 10px; padding: 0; border-radius: 99px; border: 0; background: rgba(255,255,255,.45); cursor: pointer; transition: width .35s, background .35s; }
+.hero-dots button { width: 10px; height: 10px; padding: 0; border-radius: 99px; border: 0; background: rgba(255,255,255,.45); cursor: pointer; transition: width .5s, background .5s; }
 .hero-dots button[aria-current] { width: 28px; background: var(--gold-2); }
 .hero-dots button:hover { background: rgba(255,255,255,.8); }
 @media (max-width: 900px) { .hero-dots { right: 22px; bottom: 16px; } .hero-dots button { width: 9px; height: 9px; } .hero-dots button[aria-current] { width: 22px; } }
-@media (prefers-reduced-motion: reduce) { .hero-media .slide { transition: none; } .hero-media .slide.on { animation: none; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .hero-media .slide.on, .hero-media .slide.on.fading { animation: heroFadeIn 1s ease forwards; } }
 
-/* ================= Moments carousel (film strip, each photo keeps its shape) ================= */
-.carousel { position: relative; }
-.carousel-track { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; overscroll-behavior-x: contain;
-  scrollbar-width: none; padding: 4px 2px 6px; margin: 0 -2px; -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent); mask-image: linear-gradient(90deg, #000 92%, transparent); }
-.carousel-track::-webkit-scrollbar { display: none; }
-.carousel-track:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
-.carousel.at-end .carousel-track { -webkit-mask-image: none; mask-image: none; }
-.carousel-slide { flex: 0 0 auto; height: 380px; aspect-ratio: 4 / 3; scroll-snap-align: start; }
-.carousel-slide.tall { aspect-ratio: 3 / 4; }
-.carousel-slide .tile { height: 100%; border-radius: 16px; box-shadow: var(--shadow); }
-.carousel-slide .tile img, .carousel-slide .tile video { width: 100%; height: 100%; object-fit: cover; }
-.carousel-slide .tile .cap { opacity: 1; transform: none; padding-top: 48px; }
-.carousel .reveal { opacity: 1; transform: none; }
-.carousel-ctrl { display: flex; align-items: center; gap: 16px; margin-top: 22px; }
-.carousel-btn { flex: none; width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid var(--forest); background: #fff; color: var(--forest); display: grid; place-items: center; cursor: pointer; transition: background .2s, color .2s; }
-.carousel-btn:hover:not(:disabled) { background: var(--forest); color: #fff; }
-.carousel-btn:disabled { opacity: .35; cursor: default; }
-.carousel-btn svg { width: 22px; height: 22px; }
-.carousel-progress { flex: 1; height: 4px; border-radius: 99px; background: var(--line); overflow: hidden; }
-.carousel-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--forest), var(--gold)); border-radius: 99px; transition: width .4s ease; }
+/* ================= Moments showcase: photos dissolve seamlessly into each other ================= */
+.fader-stage { position: relative; aspect-ratio: 16 / 9; max-height: 620px; width: 100%; border-radius: 22px; overflow: hidden; background: var(--forest); box-shadow: var(--shadow-lg); isolation: isolate; }
+.fade-slide { position: absolute; inset: 0; padding: 0; border: 0; margin: 0; background: none; cursor: zoom-in; opacity: 0; z-index: 0; color: #fff; text-align: left; font: inherit; display: block; width: 100%; }
+.fade-slide.under { opacity: 1; z-index: 1; }
+.fade-slide.on { opacity: 1; z-index: 2; }
+.fade-slide.on.fading { animation: fadeUp 1.6s ease-in-out forwards; }
+@keyframes fadeUp { from { opacity: 0; } to { opacity: 1; } }
+.fade-slide img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.04); transition: transform 7s ease-out; }
+.fade-slide.on img { transform: scale(1); }
+.fade-slide.tall img { object-fit: contain; transform: none; transition: none; }
+.fade-bg { position: absolute; inset: -30px; background: var(--img) center / cover; filter: blur(26px) saturate(1.1) brightness(.7); }
+.fade-slide:not(.tall) .fade-bg { display: none; }
+.fade-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 70px 30px 24px; background: linear-gradient(0deg, rgba(24,8,48,.88), rgba(24,8,48,0)); display: block; }
+.fade-cap b { display: block; font-family: var(--serif); font-weight: 600; font-size: 1.35rem; color: #fff; }
+.fade-cap span { display: block; color: rgba(255,255,255,.85); font-size: .98rem; margin-top: 2px; max-width: 640px; }
+.fader-btn { position: absolute; z-index: 4; top: 50%; transform: translateY(-50%); width: 52px; height: 52px; border-radius: 50%; border: 0; background: rgba(255,255,255,.92); color: var(--forest); display: grid; place-items: center; cursor: pointer; box-shadow: 0 10px 24px -10px rgba(0,0,0,.5); opacity: 0; transition: opacity .3s, background .2s, color .2s; }
+.fader-btn.prev { left: 18px; } .fader-btn.next { right: 18px; }
+.fader-stage:hover .fader-btn, .fader-btn:focus-visible { opacity: 1; }
+.fader-btn:hover { background: var(--gold); color: #23103F; }
+.fader-btn svg { width: 24px; height: 24px; }
+.fader-count { position: absolute; z-index: 4; top: 18px; right: 20px; background: rgba(24,8,48,.55); color: #fff; font-size: .82rem; padding: 6px 12px; border-radius: 99px; backdrop-filter: blur(6px); }
+.fader-count b { color: var(--gold-2); }
+.fader-thumbs { display: flex; gap: 10px; margin-top: 16px; overflow-x: auto; scrollbar-width: none; padding: 4px 2px; }
+.fader-thumbs::-webkit-scrollbar { display: none; }
+.fader-thumbs button { flex: 0 0 auto; width: 92px; height: 64px; padding: 0; border: 0; border-radius: 10px; overflow: hidden; cursor: pointer; opacity: .55; outline: 3px solid transparent; outline-offset: 2px; transition: opacity .3s, outline-color .3s; background: var(--forest-3); }
+.fader-thumbs button img { width: 100%; height: 100%; object-fit: cover; }
+.fader-thumbs button:hover { opacity: .85; }
+.fader-thumbs button.on { opacity: 1; outline-color: var(--gold); }
+@media (hover: none) { .fader-btn { opacity: 1; width: 42px; height: 42px; } }
 @media (max-width: 760px) {
-  .carousel-track { margin: 0 -22px; padding: 4px 22px 6px; scroll-padding: 0 22px; -webkit-mask-image: none; mask-image: none; }
-  .carousel-slide { height: 280px; max-width: 86vw; }
-  .carousel-slide.tall { height: 340px; }
-  .carousel-btn { width: 44px; height: 44px; }
+  .fader-stage { aspect-ratio: 4 / 3.4; border-radius: 16px; margin: 0 -6px; width: calc(100% + 12px); }
+  .fade-cap { padding: 44px 16px 14px; }
+  .fade-cap b { font-size: 1.05rem; }
+  .fade-cap span { display: none; } /* full caption shows when the photo is opened */
+  .fader-btn { top: 42%; }
+  .fader-btn.prev { left: 10px; } .fader-btn.next { right: 10px; }
+  .fader-thumbs { margin: 14px -22px 0; padding: 4px 22px; }
+  .fader-thumbs button { width: 72px; height: 52px; }
 }
+@media (prefers-reduced-motion: reduce) { .fade-slide img { transition: none; transform: none; } .fade-slide.on.fading { animation-duration: .6s; } }
 @media (max-width: 760px) { .hero:has(.hero-dots) .hero-inner { padding-bottom: 54px; } }

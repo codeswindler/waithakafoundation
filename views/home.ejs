@@ -113,15 +113,28 @@
       <div class="section-head reveal"><span class="eyebrow">Gallery</span><h2>Moments with our elders</h2><p>Fellowship, care and celebration at our monthly gatherings.</p></div>
       <a class="btn btn-line reveal" href="/gallery"><%- icon('camera') %> Open the gallery</a>
     </div>
-    <div class="carousel" data-carousel>
-      <div class="carousel-track" data-lb-group tabindex="0" aria-label="Photos from our gatherings: swipe or use the arrows">
-        <% featuredMedia.forEach((m) => { %><div class="carousel-slide<%= m.width && m.height && m.height > m.width ? ' tall' : '' %>"><%- include('partials/media-tile', { m }) %></div><% }) %>
+    <% const pics = featuredMedia.filter((m) => m.kind === 'image'); %>
+    <div class="fader" data-fader aria-roledescription="carousel" aria-label="Moments with our elders">
+      <div class="fader-stage" data-lb-group>
+        <% pics.forEach((m, i) => { const tall = m.height > m.width * 1.05; %>
+        <button type="button" class="fade-slide<%= i === 0 ? ' on' : '' %><%= tall ? ' tall' : '' %>" data-lb="image" data-src="/uploads/<%= m.file %>" data-title="<%= m.title || '' %>" data-caption="<%= m.caption || '' %>"
+          aria-label="<%= (m.title || 'Photo') + ' (' + (i + 1) + ' of ' + pics.length + '): open full size' %>"<%- i === 0 ? '' : ' tabindex="-1" aria-hidden="true"' %>>
+          <span class="fade-bg" style="--img:url('/uploads/<%= m.thumb || m.file %>')"></span>
+          <% if (i === 0) { %><img src="/uploads/<%= m.file %>" srcset="<%= h.srcset(m.file) %>" sizes="(max-width: 1180px) 100vw, 1140px" alt="<%= m.title || '' %>" loading="lazy">
+          <% } else { %><img data-src="/uploads/<%= m.file %>" data-srcset="<%= h.srcset(m.file) %>" sizes="(max-width: 1180px) 100vw, 1140px" alt="<%= m.title || '' %>"><% } %>
+          <% if (m.title || m.caption) { %><span class="fade-cap"><b><%= m.title %></b><% if (m.caption) { %><span><%= m.caption %></span><% } %></span><% } %>
+        </button>
+        <% }) %>
+        <% if (pics.length > 1) { %>
+        <button type="button" class="fader-btn prev" data-dir="-1" aria-label="Previous photo"><%- icon('left') %></button><button type="button" class="fader-btn next" data-dir="1" aria-label="Next photo"><%- icon('right') %></button>
+        <span class="fader-count" aria-live="polite"><b>1</b> / <%= pics.length %></span>
+        <% } %>
       </div>
-      <div class="carousel-ctrl">
-        <button type="button" class="carousel-btn" data-dir="-1" aria-label="Previous photos"><%- icon('left') %></button>
-        <div class="carousel-progress" aria-hidden="true"><span></span></div>
-        <button type="button" class="carousel-btn" data-dir="1" aria-label="Next photos"><%- icon('right') %></button>
+      <% if (pics.length > 1) { %>
+      <div class="fader-thumbs" role="tablist" aria-label="Choose a photo">
+        <% pics.forEach((m, i) => { %><button type="button" role="tab" aria-label="<%= m.title || ('Photo ' + (i + 1)) %>" aria-selected="<%= i === 0 %>"<%- i === 0 ? ' class="on"' : '' %>><img src="/uploads/<%= m.thumb || m.file %>" alt="" loading="lazy"></button><% }) %>
       </div>
+      <% } %>
     </div>
   </div>
 </section>

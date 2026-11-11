@@ -112,15 +112,24 @@
         img.src = img.dataset.src; delete img.dataset.src; delete img.dataset.srcset;
       });
     };
+    var cleanT = null;
     var go = function (n) {
       n = (n + slides.length) % slides.length;
       if (n === cur) return;
       load(slides[n]).then(function () {
-        slides[cur].classList.remove('on'); slides[cur].classList.add('was');
-        var prev = slides[cur];
-        setTimeout(function () { prev.classList.remove('was'); }, 1900);
-        slides[n].classList.add('on'); cur = n;
+        var prev = slides[cur], next = slides[n];
+        // Freeze the outgoing photo exactly where its drift is, and keep it fully visible underneath.
+        prev.style.transform = getComputedStyle(prev).transform;
+        slides.forEach(function (sl) { if (sl !== prev && sl !== next) { sl.classList.remove('on', 'fading', 'under'); sl.style.transform = ''; } });
+        prev.classList.remove('on', 'fading'); prev.classList.add('under');
+        next.classList.remove('under'); next.style.transform = '';
+        void next.offsetWidth; // restart its animations cleanly
+        next.classList.add('on', 'fading');
+        cur = n;
         dots.forEach(function (b, i) { if (i === n) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+        // Once the new photo fully covers the old one, quietly retire the old one.
+        clearTimeout(cleanT);
+        cleanT = setTimeout(function () { if (prev !== slides[cur]) { prev.classList.remove('under'); prev.style.transform = ''; } }, 2400);
         load(slides[(n + 1) % slides.length]); // warm up the next one
       });
     };
@@ -130,38 +139,55 @@
     play();
   }
 
-  // ---- Moments carousel: arrows, progress, gentle autoplay that pauses while people interact ----
-  d.querySelectorAll('[data-carousel]').forEach(function (car) {
-    var track = car.querySelector('.carousel-track'), bar = car.querySelector('.carousel-progress span');
-    var items = [].slice.call(track.children), idle = true, visible = false, resumeT = null;
-    var maxScroll = function () { return track.scrollWidth - track.clientWidth; };
-    var update = function () {
-      var m = maxScroll(), x = track.scrollLeft;
-      if (bar) bar.style.width = (m > 0 ? Math.max(8, Math.round((x / m) * 100)) : 100) + '%';
-      car.classList.toggle('at-end', x >= m - 4);
-      car.querySelector('.carousel-ctrl').hidden = m <= 4;
+  // ---- Moments showcase: each photo dissolves into the next (new one fades in on top of the old) ----
+  d.querySelectorAll('[data-fader]').forEach(function (fd) {
+    var slides = [].slice.call(fd.querySelectorAll('.fade-slide')), thumbs = [].slice.call(fd.querySelectorAll('.fader-thumbs button'));
+    var count = fd.querySelector('.fader-count b'), cur = 0, busy = false, idle = true, visible = false, resumeT = null, cleanT = null;
+    if (slides.length < 2) return;
+    var img = function (i) { return slides[i].querySelector('img'); };
+    var load = function (i) {
+      var im = img(i);
+      return new Promise(function (res) {
+        if (!im.dataset.src) return im.complete ? res() : (im.onload = im.onerror = function () { res(); });
+        im.onload = im.onerror = function () { res(); };
+        if (im.dataset.srcset) im.srcset = im.dataset.srcset;
+        im.src = im.dataset.src; delete im.dataset.src; delete im.dataset.srcset;
+      });
     };
-    var pending = null, pendingAt = 0;
-    var step = function (dir) {
-      // While a smooth scroll is still moving, continue from where it is heading (so quick taps add up)
-      var x = (pending != null && Date.now() - pendingAt < 600) ? pending : track.scrollLeft, m = maxScroll();
-      if (dir > 0 && x >= m - 4) { pending = 0; pendingAt = Date.now(); track.scrollTo({ left: 0 }); return; }
-      if (dir < 0 && x <= 4) { pending = m; pendingAt = Date.now(); track.scrollTo({ left: m }); return; }
-      var left = track.getBoundingClientRect().left;
-      var offs = items.map(function (el) { return el.getBoundingClientRect().left - left + x; });
-      var target = dir > 0 ? offs.find(function (o) { return o > x + 8; }) : offs.filter(function (o) { return o < x - 8; }).pop();
-      pending = target == null ? (dir > 0 ? m : 0) : Math.min(target, m); pendingAt = Date.now();
-      track.scrollTo({ left: pending });
+    var show = function (n) {
+      n = (n + slides.length) % slides.length;
+      if (n === cur || busy) return;
+      busy = true;
+      load(n).then(function () {
+        var prev = slides[cur], next = slides[n];
+        slides.forEach(function (sl) { if (sl !== prev && sl !== next) sl.classList.remove('on', 'fading', 'under'); });
+        prev.classList.remove('on', 'fading'); prev.classList.add('under');
+        next.classList.remove('under'); void next.offsetWidth; next.classList.add('on', 'fading');
+        prev.setAttribute('aria-hidden', 'true'); prev.tabIndex = -1;
+        next.removeAttribute('aria-hidden'); next.tabIndex = 0;
+        thumbs.forEach(function (t, i) { t.classList.toggle('on', i === n); t.setAttribute('aria-selected', i === n); });
+        if (thumbs[n]) thumbs[n].scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+        if (count) count.textContent = n + 1;
+        cur = n;
+        clearTimeout(cleanT);
+        cleanT = setTimeout(function () { if (prev !== slides[cur]) prev.classList.remove('under'); }, 1700);
+        setTimeout(function () { busy = false; }, 450);
+        load((n + 1) % slides.length);
+      });
     };
-    car.querySelectorAll('.carousel-btn').forEach(function (b) { b.addEventListener('click', function () { pause(); step(+b.dataset.dir); }); });
-    track.addEventListener('scroll', function () { window.requestAnimationFrame(update); }, { passive: true });
-    track.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight') { e.preventDefault(); pause(); step(1); } if (e.key === 'ArrowLeft') { e.preventDefault(); pause(); step(-1); } });
-    function pause() { idle = false; clearTimeout(resumeT); resumeT = setTimeout(function () { idle = true; }, 9000); }
-    ['pointerenter', 'touchstart', 'focusin'].forEach(function (ev) { car.addEventListener(ev, pause, { passive: true }); });
-    if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { visible = en[0].isIntersecting; }, { threshold: 0.4 }).observe(car);
-    if (!reduce) setInterval(function () { if (idle && visible && !d.hidden && !d.querySelector('.lb.open')) step(1); }, 4500);
-    window.addEventListener('resize', update);
-    update();
+    function pause() { idle = false; clearTimeout(resumeT); resumeT = setTimeout(function () { idle = true; }, 8000); }
+    fd.querySelectorAll('.fader-btn').forEach(function (b) { b.addEventListener('click', function (e) { e.stopPropagation(); pause(); show(cur + Number(b.dataset.dir)); }); });
+    thumbs.forEach(function (t, i) { t.addEventListener('click', function () { pause(); show(i); }); });
+    fd.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight') { pause(); show(cur + 1); } if (e.key === 'ArrowLeft') { pause(); show(cur - 1); } });
+    ['pointerenter', 'focusin'].forEach(function (ev) { fd.addEventListener(ev, pause); });
+    var sx = null, stage = fd.querySelector('.fader-stage');
+    stage.addEventListener('touchstart', function (e) { pause(); sx = e.touches[0].clientX; }, { passive: true });
+    var swiped = false;
+    stage.addEventListener('touchend', function (e) { if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) { swiped = true; show(cur + (dx < 0 ? 1 : -1)); setTimeout(function () { swiped = false; }, 400); } sx = null; });
+    // A swipe should change the photo, not also open the full-size viewer
+    stage.addEventListener('click', function (e) { if (swiped) { e.preventDefault(); e.stopPropagation(); } }, true);
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible) load((cur + 1) % slides.length); }, { threshold: 0.35 }).observe(fd);
+    if (!reduce) setInterval(function () { if (idle && visible && !d.hidden && !d.querySelector('.lb.open')) show(cur + 1); }, 5500);
   });
 
   // ---- "swipe for more" hint on phone carousels that overflow ----

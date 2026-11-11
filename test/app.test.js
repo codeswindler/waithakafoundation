@@ -311,5 +311,5 @@ test('gallery photos import exactly once, even when two imports run at the same 
   assert.equal(Number(dup.c), 0, 'no duplicate photos');
   const home = await (await fetch(base + '/')).text();
   assert.ok((home.match(/class="slide/g) || []).length >= 3, 'homepage slideshow has several photos');
-  assert.ok(home.includes('data-carousel'), 'homepage has the moments carousel');
+  assert.ok(home.includes('data-fader') && (home.match(/class="fade-slide/g) || []).length >= 3, 'homepage has the cross-fading moments showcase');
 });
