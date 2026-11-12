@@ -104,6 +104,7 @@ function eventFromBody(b) {
   return {
     title: String(b.title || '').trim().slice(0, 160),
     start_date: String(b.start_date || '').trim(),
+    date_tbc: b.date_tbc ? 1 : 0,
     start_time: /^\d\d:\d\d$/.test(b.start_time) ? b.start_time : null,
     end_time: /^\d\d:\d\d$/.test(b.end_time) ? b.end_time : null,
     venue: String(b.venue || '').trim().slice(0, 200),
@@ -121,6 +122,8 @@ function eventErrors(e) {
   if (!e.title) errors.push('Give the event a title.');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(e.start_date) || Number.isNaN(Date.parse(e.start_date))) errors.push('Choose the event date.');
   if (e.start_time && e.end_time && e.end_time <= e.start_time) errors.push('The end time must be after the start time.');
+  // Month only: store the last day of that month so the event stays "upcoming" all month.
+  if (e.date_tbc && !errors.length) { e.start_date = h.endOfMonth(e.start_date); e.start_time = null; e.end_time = null; }
   return errors;
 }
 async function uniqueSlug(title, date, ignoreId = 0) {
@@ -135,8 +138,8 @@ router.post('/events', wrap(async (req, res) => {
   const e = eventFromBody(req.body);
   const errors = eventErrors(e);
   if (errors.length) return res.status(400).render('admin/event-form', { title: 'New event', e, media: [], errors });
-  const { insertId: id } = await run(`INSERT INTO events(slug,title,start_date,start_time,end_time,venue,summary,body,achievements,attendance,published,featured)
-    VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`, await uniqueSlug(e.title, e.start_date), e.title, e.start_date, e.start_time, e.end_time, e.venue, e.summary, e.body, e.achievements, e.attendance, e.published, e.featured);
+  const { insertId: id } = await run(`INSERT INTO events(slug,title,start_date,date_tbc,start_time,end_time,venue,summary,body,achievements,attendance,published,featured)
+    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`, await uniqueSlug(e.title, e.start_date), e.title, e.start_date, e.date_tbc, e.start_time, e.end_time, e.venue, e.summary, e.body, e.achievements, e.attendance, e.published, e.featured);
   if (e.featured) await run('UPDATE events SET featured=0 WHERE id!=?', id);
   flash(req, 'ok', 'Event created. Now add photos and videos below.');
   res.redirect(`/admin/events/${id}#media`);
@@ -153,8 +156,8 @@ router.post('/events/:id', wrap(async (req, res, next) => {
   const errors = eventErrors(e);
   if (errors.length) return res.status(400).render('admin/event-form', { title: 'Edit event', e, media: await eventMedia(old.id), errors });
   const slug = old.title === e.title && old.start_date === e.start_date ? old.slug : await uniqueSlug(e.title, e.start_date, old.id);
-  await run(`UPDATE events SET slug=?,title=?,start_date=?,start_time=?,end_time=?,venue=?,summary=?,body=?,achievements=?,attendance=?,published=?,featured=?,cover_media_id=?,sample=0,updated_at=NOW() WHERE id=?`,
-    slug, e.title, e.start_date, e.start_time, e.end_time, e.venue, e.summary, e.body, e.achievements, e.attendance, e.published, e.featured, e.cover_media_id, old.id);
+  await run(`UPDATE events SET slug=?,title=?,start_date=?,date_tbc=?,start_time=?,end_time=?,venue=?,summary=?,body=?,achievements=?,attendance=?,published=?,featured=?,cover_media_id=?,sample=0,updated_at=NOW() WHERE id=?`,
+    slug, e.title, e.start_date, e.date_tbc, e.start_time, e.end_time, e.venue, e.summary, e.body, e.achievements, e.attendance, e.published, e.featured, e.cover_media_id, old.id);
   if (e.featured) await run('UPDATE events SET featured=0 WHERE id!=?', old.id);
   flash(req, 'ok', 'Event saved.');
   res.redirect(`/admin/events/${old.id}`);

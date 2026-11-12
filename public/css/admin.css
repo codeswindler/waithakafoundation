@@ -1,4 +1,4 @@
-:root { --forest: #4A1F86; --forest-2: #5E2FA3; --gold: #C9A13B; --gold-soft: #F7F0DD; --clay: #7E3A9E; --bg: #F6F4FA; --card: #fff; --ink: #1D1530; --muted: #5F576E; --line: #E6E0EF; --ok: #2f7a45; --warn: #a2561b; --danger: #b3261e; --r: 14px; }
+:root { --forest: #4A1F86; --forest-2: #5E2FA3; --gold: #C9A13B; --gold-soft: #F7F0DD; --clay: #A6317D; --bg: #F6F4FA; --card: #fff; --ink: #1D1530; --muted: #5F576E; --line: #E6E0EF; --ok: #2f7a45; --warn: #a2561b; --danger: #b3261e; --r: 14px; }
 * { box-sizing: border-box; }
 body { margin: 0; font-family: Inter, system-ui, sans-serif; background: var(--bg); color: var(--ink); font-size: 15px; line-height: 1.55; }
 a { color: var(--forest-2); }

@@ -23,10 +23,10 @@
     <aside class="next-card">
       <span class="label"><%= next.featured ? 'Featured event' : 'Next gathering' %></span>
       <h3><%= next.title %></h3>
-      <div class="meta"><%= h.weekday(next.start_date) %>, <%= h.fmtDate(next.start_date) %><%= next.venue ? ' · ' + next.venue : '' %></div>
-      <div class="countdown" data-countdown="<%= next.start_date %>T<%= next.start_time || '09:00' %>:00+03:00">
+      <div class="meta"><%= h.eventWhen(next) %><%= next.venue ? ' · ' + next.venue : '' %></div>
+      <% if (!next.date_tbc) { %>      <div class="countdown" data-countdown="<%= next.start_date %>T<%= next.start_time || '09:00' %>:00+03:00">
         <div><b data-u="d">-</b><span>Days</span></div><div><b data-u="h">-</b><span>Hours</span></div><div><b data-u="m">-</b><span>Mins</span></div><div><b data-u="s">-</b><span>Secs</span></div>
-      </div>
+      </div><% } else { %><p class="tbc-note">Save the month: the date will be announced here soon.</p><% } %>
       <a class="link" href="/events/<%= next.slug %>">Event details →</a>
     </aside>
     <% } %>

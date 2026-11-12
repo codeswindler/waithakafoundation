@@ -8,7 +8,7 @@
       <tr>
         <td class="thumbcell"><% if (e.cover_thumb) { %><img src="/uploads/<%= e.cover_thumb %>" alt=""><% } else { %><span class="noimg"><%- icon('calendar') %></span><% } %></td>
         <td><a href="/admin/events/<%= e.id %>"><b><%= e.title %></b></a><small class="muted block"><%= e.venue || 'No venue set' %></small></td>
-        <td class="nowrap"><%= h.fmtDate(e.start_date) %><small class="muted block"><%= h.timeRange(e.start_time, e.end_time) %></small></td>
+        <td class="nowrap"><%= e.date_tbc ? h.MONTHS[+e.start_date.slice(5,7)-1] + ' ' + e.start_date.slice(0,4) : h.fmtDate(e.start_date) %><small class="muted block"><%= e.date_tbc ? 'Date to be confirmed' : h.timeRange(e.start_time, e.end_time) %></small></td>
         <td><%= e.media_count %></td>
         <td>
           <% if (!e.published) { %><span class="pill">Hidden</span><% } else { %><span class="pill ok">Live</span><% } %>

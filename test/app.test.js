@@ -20,7 +20,7 @@ process.env.ADMIN_PASSWORD = 'first-test-pass-123';
 
 const sharp = require('sharp');
 const { createApp } = require('../src/app');
-const { ensureAdmin, seedContent, importGallery, importEvents } = require('../src/seed');
+const { ensureAdmin, seedContent, importGallery, importEvents, applyContentFixes } = require('../src/seed');
 const db = require('../src/db');
 
 let server, base;
@@ -60,6 +60,7 @@ before(async () => {
   await db.init();
   await ensureAdmin();
   await seedContent();
+  await applyContentFixes();
   await importGallery();
   await importEvents();
   const app = await createApp();
@@ -344,4 +345,27 @@ test('homepage carousels include every photo; gallery shows them all', async () 
   assert.ok((home.match(/<img class="slide[^>]* src=/g) || []).length <= 1, 'only the first banner photo loads up front');
   const gallery = await (await fetch(base + '/gallery')).text();
   assert.ok((gallery.match(/data-lb="image"/g) || []).length >= images, 'gallery shows every photo');
+});
+
+test('fundraiser is a past event on 7 Nov; anniversary shows as December, date to be confirmed', async () => {
+  const f = await db.get("SELECT * FROM events WHERE slug='land-fundraiser-waithaka-foundation-complex'");
+  assert.equal(f.start_date, '2026-11-07');
+  assert.equal(f.start_time, null);
+  const a = await db.get("SELECT * FROM events WHERE slug='5th-anniversary-celebration-december-2026'");
+  assert.equal(a.date_tbc, 1);
+  assert.equal(a.start_date, '2026-12-31');
+  assert.equal(await db.get("SELECT id FROM events WHERE slug='monthly-fellowship-gathering-december-2026'"), undefined, 'Christmas placeholder gone');
+  const home = await (await fetch(base + '/')).text();
+  assert.ok(home.includes('5th Anniversary Celebration') && home.includes('December 2026 · date to be confirmed'));
+  assert.ok(!/class="next-card"[\s\S]{0,600}data-countdown/.test(home), 'no countdown without a date');
+  const page = await (await fetch(base + '/events/' + a.slug)).text();
+  assert.ok(page.includes('date to be confirmed') && !page.includes('Add to Google Calendar'));
+  assert.equal((await fetch(base + '/events/' + a.slug + '.ics')).status, 404);
+  // admin: month-only checkbox stores the last day of the month and clears times
+  const c = await loggedIn();
+  const r = await c.req('POST', '/admin/events', { form: { _csrf: c.csrf, title: 'TBC test', start_date: '2027-03-10', start_time: '10:00', date_tbc: '1', published: '1' } });
+  const id = r.headers.get('location').match(/events\/(\d+)/)[1];
+  const e = await db.get('SELECT * FROM events WHERE id=?', id);
+  assert.equal(e.start_date, '2027-03-31'); assert.equal(e.date_tbc, 1); assert.equal(e.start_time, null);
+  await c.req('POST', `/admin/events/${id}/delete`, { form: { _csrf: c.csrf } });
 });

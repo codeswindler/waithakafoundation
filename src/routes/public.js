@@ -43,8 +43,10 @@ router.get('/', wrap(async (req, res) => {
     WHERE m.kind='image' AND m.width >= m.height * 1.25
     ORDER BY m.featured DESC, COALESCE(e.start_date, DATE(m.created_at)) DESC, m.sort, m.id`);
   const slides = [...(hero ? [{ file: hero, title: '' }] : []), ...wide.filter((m) => m.file !== hero)];
-  const featuredUp = up.find((e) => e.featured) || (await get(`SELECT ${EVENT_COLS} FROM ${EVENT_FROM} WHERE e.published=1 AND e.featured=1 AND e.start_date >= ? LIMIT 1`, h.today()));
-  res.render('home', { title: null, slides, upcoming: up, next: featuredUp || up[0] || null, past: pastList, featuredMedia, milestones, partners: partnerList, stats: st });
+  // Homepage card: only events the team has confirmed (setup placeholders are never promoted here).
+  const confirmed = (await upcoming(20)).filter((e) => !e.sample);
+  const nextUp = confirmed.find((e) => e.featured) || confirmed[0] || null;
+  res.render('home', { title: null, slides, upcoming: up, next: nextUp, past: pastList, featuredMedia, milestones, partners: partnerList, stats: st });
 }));
 
 router.get('/about', wrap(async (req, res) => {
@@ -69,7 +71,7 @@ async function findEvent(slug) { return get(`SELECT ${EVENT_COLS} FROM ${EVENT_F
 
 router.get('/events/:slug.ics', wrap(async (req, res, next) => {
   const e = await findEvent(req.params.slug);
-  if (!e) return next();
+  if (!e || e.date_tbc) return next(); // no calendar file until the date is fixed
   const s = await getSettings();
   res.type('text/calendar').attachment(`${e.slug}.ics`).send(h.icsFor(e, s, res.locals.baseUrl));
 }));

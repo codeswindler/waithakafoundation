@@ -20,6 +20,22 @@ async function ensureAdmin() {
   return { email };
 }
 
+// The land fundraiser took place on 7 November 2026 (the date of the foundation's brief).
+const FUNDRAISER = {
+  title: 'Fundraiser: Land for the Waithaka Foundation Complex', date: '2026-11-07', t1: null, t2: null, venue: '',
+  summary: 'Friends, families, partners and well-wishers came together to raise funds to buy land for a permanent home for our elders.',
+  body: 'Today the foundation hires halls and open fields for every gathering, and many elders cannot attend because of transport challenges.\n\nThis fundraiser was the first step towards the Waithaka Foundation Complex: a permanent, accessible home where we can reach many more senior citizens. Contributions towards the land are still welcome: see Support us.',
+  ach: '', cover: null, featured: 0,
+};
+// Upcoming: the foundation's 5th anniversary in December 2026. The day is not fixed yet, so the event is
+// dated the last day of the month (keeps it "upcoming" all December) and shown as "December 2026 · date to be confirmed".
+const ANNIVERSARY = {
+  slug: '5th-anniversary-celebration-december-2026', title: '5th Anniversary Celebration', date: '2026-12-31', tbc: true, t1: null, t2: null, venue: '',
+  summary: 'Celebrating five years of the Waithaka Foundation with our elders, their families, volunteers, partners and friends.',
+  body: 'Join us in December as we celebrate five years of walking with the elders of Kabuku and Limuru: five years of fellowship, care and dignity.\n\nThe date and venue will be announced here soon. Partners and well-wishers who would like to be part of the celebration are warmly invited to get in touch.',
+  ach: '', cover: null, featured: 1,
+};
+
 /** Seeds starting content taken from the foundation's brief (7 Nov 2026). Only runs on an empty database. */
 async function seedContent() {
   if ((await get('SELECT COUNT(*) c FROM milestones')).c > 0 || (await get('SELECT COUNT(*) c FROM events')).c > 0) return false;
@@ -50,27 +66,15 @@ async function seedContent() {
   ];
   for (const [i, m] of ms.entries()) await run('INSERT INTO milestones(period,title,description,sort) VALUES(?,?,?,?)', m[0], m[1], m[2], i);
 
-  // Upcoming examples so the calendar is not empty on day one. Flagged sample=1: confirm or replace in admin.
+  // The land fundraiser (7 Nov 2026) and the upcoming 5th anniversary (December, date to be confirmed).
   // (Real past gatherings come from seed/gallery/events via importEvents.)
   const ev = [
-    {
-      slug: 'land-fundraiser-waithaka-foundation-complex', title: 'Fundraiser: Land for the Waithaka Foundation Complex', date: '2026-11-28', t1: '10:00', t2: '16:00',
-      venue: 'Limuru, Kiambu County',
-      summary: 'Join friends, families, partners and well-wishers as we raise funds to buy land for a permanent home for our elders.',
-      body: 'Today the foundation hires halls and open fields for every gathering, and many elders cannot attend because of transport challenges.\n\nThis fundraiser is the first step towards the Waithaka Foundation Complex: a permanent, accessible home where we can reach many more senior citizens. Every contribution, large or small, brings us closer to buying the land.',
-      ach: '', cover: null, featured: 1,
-    },
-    {
-      slug: 'monthly-fellowship-gathering-december-2026', title: 'Christmas Fellowship with Our Elders', date: '2026-12-12', t1: '10:00', t2: '15:00',
-      venue: 'Kabuku, Limuru',
-      summary: 'Our end-of-year gathering: fellowship, a festive meal, health checks and Christmas hampers for every member.',
-      body: 'We close the year with our elders: a morning of worship and song, a festive meal together, health checks, and a Christmas hamper of food and essential supplies for every registered member.\n\nVolunteers, families and sponsors are warmly invited to join us.',
-      ach: '', cover: null,
-    },
+    { slug: 'land-fundraiser-waithaka-foundation-complex', ...FUNDRAISER, sample: 1 },
+    { ...ANNIVERSARY, sample: 0 },
   ];
   for (const e of ev) {
-    const id = (await run(`INSERT INTO events(slug,title,start_date,start_time,end_time,venue,summary,body,achievements,cover_media_id,featured,sample)
-      VALUES(?,?,?,?,?,?,?,?,?,?,?,1)`, e.slug, e.title, e.date, e.t1, e.t2, e.venue, e.summary, e.body, e.ach, e.cover, e.featured || 0)).insertId;
+    await run(`INSERT INTO events(slug,title,start_date,date_tbc,start_time,end_time,venue,summary,body,achievements,cover_media_id,featured,sample)
+      VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`, e.slug, e.title, e.date, e.tbc ? 1 : 0, e.t1, e.t2, e.venue, e.summary, e.body, e.ach, e.cover, e.featured || 0, e.sample);
   }
   return true;
 }
@@ -177,4 +181,38 @@ async function importEvents() {
   return made;
 }
 
-module.exports = { ensureAdmin, seedContent, importGallery, importEvents };
+/**
+ * One-off corrections to content created by earlier versions of the site. Each runs once and never
+ * overwrites an event the team has already edited (editing in the admin clears the sample flag).
+ */
+async function applyContentFixes() {
+  // 1. The land fundraiser happened on 7 November 2026 (not the placeholder 28 November).
+  if (!(await get("SELECT skey FROM settings WHERE skey='_fix_fundraiser_2026_11_07'"))) {
+    await run(`UPDATE events SET start_date=?, start_time=NULL, end_time=NULL, venue='', summary=?, body=?, featured=0
+      WHERE slug='land-fundraiser-waithaka-foundation-complex' AND sample=1 AND start_date='2026-11-28'`,
+      FUNDRAISER.date, FUNDRAISER.summary, FUNDRAISER.body);
+    await setSetting('_fix_fundraiser_2026_11_07', new Date().toISOString());
+  }
+  // 3. The official tagline from the foundation's logo, unless the team has set their own.
+  if (!(await get("SELECT skey FROM settings WHERE skey='_fix_tagline_logo'"))) {
+    await run("UPDATE settings SET svalue='Celebrating Life' WHERE skey='tagline' AND svalue='Honouring the pillars of our community'");
+    await setSetting('_fix_tagline_logo', new Date().toISOString());
+  }
+  // 2. The upcoming event is the 5th anniversary in December (date to be confirmed), not the Christmas placeholder.
+  if (!(await get("SELECT skey FROM settings WHERE skey='_fix_anniversary_2026'"))) {
+    if (!(await get('SELECT id FROM events WHERE slug=?', ANNIVERSARY.slug))) {
+      const placeholder = await get("SELECT id FROM events WHERE slug='monthly-fellowship-gathering-december-2026' AND sample=1");
+      const vals = [ANNIVERSARY.slug, ANNIVERSARY.title, ANNIVERSARY.date, ANNIVERSARY.summary, ANNIVERSARY.body];
+      if (placeholder) {
+        await run(`UPDATE events SET slug=?, title=?, start_date=?, date_tbc=1, start_time=NULL, end_time=NULL, venue='', summary=?, body=?,
+          achievements='', featured=1, sample=0 WHERE id=?`, ...vals, placeholder.id);
+      } else {
+        await run(`INSERT INTO events(slug,title,start_date,date_tbc,summary,body,achievements,published,featured,sample) VALUES(?,?,?,1,?,?,'',1,1,0)`, ...vals);
+      }
+      await run('UPDATE events SET featured=0 WHERE slug<>?', ANNIVERSARY.slug);
+    }
+    await setSetting('_fix_anniversary_2026', new Date().toISOString());
+  }
+}
+
+module.exports = { ensureAdmin, seedContent, importGallery, importEvents, applyContentFixes };

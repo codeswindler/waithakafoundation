@@ -33,7 +33,7 @@
     <div class="card-head"><h2>Upcoming events</h2><a href="/admin/events">All events →</a></div>
     <% if (!upcoming.length) { %><p class="muted">No upcoming events. <a href="/admin/events/new">Add the next gathering</a> so visitors can see what's coming.</p><% } %>
     <ul class="rows">
-      <% upcoming.forEach((e) => { %><li><a href="/admin/events/<%= e.id %>"><span class="date"><b><%= h.fmtDay(e.start_date) %></b><%= h.fmtMon(e.start_date) %></span><span><b><%= e.title %></b><small><%= e.venue || '' %><%= e.published ? '' : ' · Hidden draft' %><%= e.sample ? ' · Please check details' : '' %></small></span></a></li><% }) %>
+      <% upcoming.forEach((e) => { %><li><a href="/admin/events/<%= e.id %>"><span class="date"><b><%= e.date_tbc ? h.fmtMon(e.start_date) : h.fmtDay(e.start_date) %></b><%= e.date_tbc ? 'TBC' : h.fmtMon(e.start_date) %></span><span><b><%= e.title %></b><small><%= e.venue || '' %><%= e.published ? '' : ' · Hidden draft' %><%= e.sample ? ' · Please check details' : '' %></small></span></a></li><% }) %>
     </ul>
   </section>
   <section class="card">

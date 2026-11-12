@@ -64,7 +64,7 @@ const SCHEMA = [
   )`,
   `CREATE TABLE IF NOT EXISTS events (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, slug VARCHAR(190) NOT NULL UNIQUE, title VARCHAR(200) NOT NULL,
-    start_date DATE NOT NULL, start_time CHAR(5), end_time CHAR(5), venue VARCHAR(200),
+    start_date DATE NOT NULL, date_tbc TINYINT NOT NULL DEFAULT 0, start_time CHAR(5), end_time CHAR(5), venue VARCHAR(200),
     summary TEXT, body MEDIUMTEXT, achievements TEXT, attendance INT NULL,
     cover_media_id INT UNSIGNED NULL, published TINYINT NOT NULL DEFAULT 1, featured TINYINT NOT NULL DEFAULT 0,
     sample TINYINT NOT NULL DEFAULT 0,
@@ -104,6 +104,12 @@ async function init() {
   }
   try {
     for (const sql of SCHEMA) await run(sql);
+    // Columns added after the first release (works on MySQL 8 and MariaDB)
+    const addColumn = async (table, column, ddl) => {
+      const r = await get('SELECT COUNT(*) AS n FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?', table, column);
+      if (!Number(r.n)) await run(`ALTER TABLE ${table} ADD COLUMN ${ddl}`);
+    };
+    await addColumn('events', 'date_tbc', 'date_tbc TINYINT NOT NULL DEFAULT 0 AFTER start_date');
   } catch (e) { throw friendly(e, cfg); }
 }
 function friendly(e, cfg) {
@@ -124,7 +130,7 @@ async function close() { if (pool) { const p = pool; pool = null; await p.end();
 const DEFAULT_SETTINGS = {
   site_name: 'Waithaka Foundation',
   site_full_name: 'Waithaka Foundation for the Elderly',
-  tagline: 'Honouring the pillars of our community',
+  tagline: 'Celebrating Life',
   hero_title: 'Dignity, comfort and companionship for our elders',
   hero_text: 'A community-based organisation in Kabuku, Limuru, caring for senior citizens over 80 through fellowship, food support and health care. Every month, with families, volunteers and local leaders.',
   hero_image: '',

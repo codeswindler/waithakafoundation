@@ -12,7 +12,7 @@
     <span class="eyebrow"><%= isUpcoming ? 'Upcoming event' : 'Event report' %></span>
     <h1><%= e.title %></h1>
     <div class="event-facts">
-      <span><%- icon('calendar') %><%= h.weekday(e.start_date) %>, <%= h.fmtDate(e.start_date) %></span>
+      <span><%- icon('calendar') %><%= h.eventWhen(e) %></span>
       <% if (e.start_time) { %><span><%- icon('clock') %><%= h.timeRange(e.start_time, e.end_time) %></span><% } %>
       <% if (e.venue) { %><span><%- icon('pin') %><%= e.venue %></span><% } %>
     </div>
@@ -45,18 +45,23 @@
       <div class="aside-card">
         <h3><%= isUpcoming ? 'Join this event' : 'Event at a glance' %></h3>
         <dl>
-          <div><dt>Date</dt><dd><%= h.weekday(e.start_date) %>, <%= h.fmtDate(e.start_date) %></dd></div>
+          <div><dt>Date</dt><dd><%= h.eventWhen(e) %></dd></div>
           <% if (e.start_time) { %><div><dt>Time</dt><dd><%= h.timeRange(e.start_time, e.end_time) %></dd></div><% } %>
           <% if (e.venue) { %><div><dt>Venue</dt><dd><%= e.venue %></dd></div><% } %>
           <% if (e.attendance) { %><div><dt>Attendance</dt><dd><%= e.attendance %> people</dd></div><% } %>
           <% if (media.length) { %><div><dt>Media</dt><dd><%= photos.length %> photo<%= photos.length === 1 ? '' : 's' %><%= videos.length ? `, ${videos.length} video${videos.length === 1 ? '' : 's'}` : '' %></dd></div><% } %>
         </dl>
         <% if (isUpcoming) { %>
+<% if (e.date_tbc) { %>
+          <p class="muted" style="margin:0 0 6px">The date will be announced soon. Get in touch and we'll let you know.</p>
+          <a class="btn btn-forest" href="/contact#form"><%- icon('mail') %> Tell me the date</a>
+          <% } else { %>
           <div class="countdown" data-countdown="<%= e.start_date %>T<%= e.start_time || '09:00' %>:00+03:00" style="color:var(--forest)">
             <div style="background:var(--forest-3)"><b data-u="d">-</b><span>Days</span></div><div style="background:var(--forest-3)"><b data-u="h">-</b><span>Hrs</span></div><div style="background:var(--forest-3)"><b data-u="m">-</b><span>Min</span></div><div style="background:var(--forest-3)"><b data-u="s">-</b><span>Sec</span></div>
           </div>
           <a class="btn btn-forest" href="<%= gcal %>" target="_blank" rel="noopener"><%- icon('calendar') %> Add to Google Calendar</a>
           <a class="btn btn-line" href="/events/<%= e.slug %>.ics"><%- icon('download') %> Phone / Outlook calendar</a>
+          <% } %>
           <a class="btn btn-gold" href="/support?event=<%= e.slug %>#form"><%- icon('hands') %> Volunteer or sponsor</a>
         <% } else { %>
           <a class="btn btn-gold" href="/support"><%- icon('heart') %> Sponsor the next one</a>

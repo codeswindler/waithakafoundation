@@ -7,7 +7,8 @@
   <input type="hidden" name="_csrf" value="<%= csrf %>">
   <div class="fgrid">
     <div class="full"><label for="title">Event title *</label><input id="title" name="title" required maxlength="160" value="<%= e.title || '' %>" placeholder="e.g. Monthly Fellowship Gathering: March"></div>
-    <div><label for="start_date">Date *</label><input id="start_date" type="date" name="start_date" required value="<%= e.start_date || '' %>"><small class="muted">Past dates show under “Past events”, future dates under “Upcoming”.</small></div>
+    <div><label for="start_date">Date *</label><input id="start_date" type="date" name="start_date" required value="<%= e.start_date || '' %>"><small class="muted">Past dates show under “Past events”, future dates under “Upcoming”.</small>
+      <label class="check sm" style="margin-top:8px"><input type="checkbox" name="date_tbc" value="1" <%= e.date_tbc ? 'checked' : '' %>> Day not fixed yet: show only the month (“date to be confirmed”)</label></div>
     <div class="two"><div><label for="start_time">Starts</label><input id="start_time" type="time" name="start_time" value="<%= e.start_time || '' %>"></div><div><label for="end_time">Ends</label><input id="end_time" type="time" name="end_time" value="<%= e.end_time || '' %>"></div></div>
     <div><label for="venue">Venue</label><input id="venue" name="venue" maxlength="200" value="<%= e.venue || '' %>" placeholder="e.g. PCEA Church Hall, Kabuku"></div>
     <div><label for="attendance">Attendance <span class="muted">(after the event)</span></label><input id="attendance" type="number" min="0" name="attendance" value="<%= e.attendance ?? '' %>" placeholder="How many attended"></div>

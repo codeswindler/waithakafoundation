@@ -2,13 +2,13 @@
 <a class="event-card reveal <%= locals.delay || '' %>" href="/events/<%= e.slug %>">
   <div class="thumb">
     <% if (e.cover_file) { %><img src="/uploads/<%= e.cover_thumb || e.cover_file %>" alt="" loading="lazy"><% } else { %><div class="ph"><img src="/static/img/logo-mark.svg" alt=""><span><%= isUp ? 'Save the date' : 'Waithaka Foundation' %></span></div><% } %>
-    <div class="date-chip"><b><%= h.fmtDay(e.start_date) %></b><span><%= h.fmtMon(e.start_date) %> <%= h.fmtYear(e.start_date).slice(2) %></span></div>
+    <% if (e.date_tbc) { %><div class="date-chip"><b><%= h.fmtMon(e.start_date) %></b><span>TBC</span></div><% } else { %><div class="date-chip"><b><%= h.fmtDay(e.start_date) %></b><span><%= h.fmtMon(e.start_date) %> <%= h.fmtYear(e.start_date).slice(2) %></span></div><% } %>
     <span class="tag <%= isUp ? '' : 'past' %>"><%= isUp ? 'Upcoming' : (e.photo_count ? `${e.photo_count} photo${e.photo_count > 1 ? 's' : ''}` : e.media_count ? 'Video' : 'Past event') %></span>
   </div>
   <div class="body">
     <h3><%= e.title %></h3>
     <div class="meta">
-      <span><%- icon('calendar') %><%= h.weekday(e.start_date) %>, <%= h.fmtDate(e.start_date) %><%= e.start_time ? ' · ' + h.timeRange(e.start_time, e.end_time) : '' %></span>
+      <span><%- icon('calendar') %><%= h.eventWhen(e) %><%= e.start_time && !e.date_tbc ? ' · ' + h.timeRange(e.start_time, e.end_time) : '' %></span>
       <% if (e.venue) { %><span><%- icon('pin') %><%= e.venue %></span><% } %>
     </div>
     <% if (e.summary) { %><p><%= h.excerpt(e.summary, 150) %></p><% } %>

@@ -739,3 +739,7 @@ textarea { min-height: 140px; resize: vertical; }
 /* A touch lighter gold for the banner label, for headroom across every slideshow photo */
 @media (min-width: 901px) { .hero .eyebrow { color: #F5E2AC; } }
 @media (max-width: 900px) { .hero-counter { top: calc(100vw * 2 / 3 - 58px); } }
+.tbc-note { margin: 14px 0 16px; color: rgba(255,255,255,.85); font-size: .95rem; border-left: 3px solid var(--gold-2); padding-left: 12px; }
+
+/* Official logo colours: royal purple + the logo's magenta as the accent */
+:root { --clay: #A6317D; --magenta: #A6317D; }

@@ -96,6 +96,14 @@ function srcset(file) {
 }
 function smallOf(file) { return file && /-lg\.webp$/.test(file) ? file.replace(/-lg\.webp$/, '-sm.webp') : file; }
 
+/** How to show an event's date: exact day, or just the month when the day is not fixed yet. */
+function eventWhen(e) {
+  if (e && e.date_tbc) { const { y, m } = parts(e.start_date); return `${MONTHS[m - 1]} ${y} · date to be confirmed`; }
+  return `${weekday(e.start_date)}, ${fmtDate(e.start_date)}`;
+}
+/** Last day of the month for a YYYY-MM-DD date (keeps a month-only event "upcoming" all month). */
+function endOfMonth(iso) { const { y, m } = parts(iso); return new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10); }
+
 function isEmail(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').trim()); }
 
-module.exports = { today, fmtDate, fmtDay, fmtMon, fmtYear, weekday, fmtTime, timeRange, slugify, esc, paras, lines, money, num, token, excerpt, isEmail, safeUrl, icsFor, waNumber, srcset, smallOf, MONTHS };
+module.exports = { today, fmtDate, fmtDay, fmtMon, fmtYear, weekday, fmtTime, timeRange, slugify, esc, paras, lines, money, num, token, excerpt, isEmail, safeUrl, icsFor, waNumber, srcset, smallOf, eventWhen, endOfMonth, MONTHS };
