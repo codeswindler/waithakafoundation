@@ -278,7 +278,7 @@ function simpleCrud({ name, table, view, title, fields, imageField }) {
   router.post(`/${name}`, M.upload.single('image'), checkCsrf, wrap(async (req, res) => {
     const b = req.body;
     if (!String(b.name || '').trim()) { if (req.file) M.safeUnlink(req.file.path); flash(req, 'warn', 'Please enter a name.'); return go(req, res, `/admin/${name}`); }
-    const vals = fields.map((f) => (f === 'sort' ? parseInt(b.sort, 10) || 0 : String(b[f] || '').trim().slice(0, 2000)));
+    const vals = fields.map((f) => (f === 'sort' ? parseInt(b.sort, 10) || 0 : String(b[f] || '').trim().slice(0, f === 'bio' ? 4000 : 2000)));
     let img = null;
     if (req.file) img = await M.saveSingleImage(req.file, { maxLarge: 800, maxSmall: 200 });
     if (b.id) {

@@ -15,6 +15,23 @@
   </div>
 </section>
 
+<% founders.forEach((p) => { %>
+<section class="founder" id="founder">
+  <div class="wrap founder-grid">
+    <div class="founder-photo reveal">
+      <% if (p.photo) { %><img src="/uploads/<%= p.photo %>" srcset="<%= h.srcset(p.photo) %>" sizes="(max-width: 900px) 90vw, 440px" alt="<%= p.name %>, <%= p.role %>" loading="lazy"><% } %>
+      <div class="founder-tag"><b><%= p.name %></b><span><%= p.role %></span></div>
+    </div>
+    <div class="reveal d1">
+      <span class="eyebrow" style="color:var(--clay)">Meet our founder</span>
+      <h2>The Heart and Vision Behind Waithaka Foundation for the Elderly</h2>
+      <div class="prose founder-bio"><%- h.paras(p.bio) %></div>
+      <% if (s.slogan) { %><p class="founder-slogan"><%= s.slogan %></p><% } %>
+    </div>
+  </div>
+</section>
+<% }) %>
+
 <section class="bg-forest">
   <div class="wrap narrow center">
     <span class="eyebrow">Our mission</span>

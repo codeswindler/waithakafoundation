@@ -750,3 +750,23 @@ textarea { min-height: 140px; resize: vertical; }
 .home .site-header:not(.scrolled) .brand img { box-shadow: 0 2px 10px rgba(0,0,0,.25); }
 .event-card .thumb .ph img { border-radius: 50%; background: #fff; padding: 2px; }
 @media (max-width: 420px) { .brand img { width: 46px; height: 46px; } }
+
+/* ================= Founder ================= */
+.founder { background: var(--paper); }
+.founder-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 64px; align-items: start; }
+.founder-photo { position: relative; }
+.founder-photo img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 20%; border-radius: var(--radius); box-shadow: var(--shadow-lg); }
+.founder-photo::before { content: ''; position: absolute; inset: 18px -18px -18px 18px; border: 2px solid var(--gold); border-radius: var(--radius); z-index: -1; }
+.founder-tag { position: absolute; left: 18px; bottom: 18px; right: 18px; background: rgba(31,11,61,.86); color: #fff; padding: 14px 18px; border-radius: 14px; backdrop-filter: blur(6px); }
+.founder-tag b { display: block; font-family: var(--serif); font-size: 1.15rem; font-weight: 600; }
+.founder-tag span { color: var(--gold-2); font-size: .9rem; }
+.founder-bio p:first-child { font-size: 1.15rem; color: var(--forest); }
+.founder-slogan { margin-top: 26px; padding: 16px 20px; border-left: 4px solid var(--clay); background: var(--forest-3); border-radius: 0 12px 12px 0; font-family: var(--serif); font-size: 1.2rem; color: var(--forest); font-style: italic; }
+.founder-band { background: var(--forest-3); }
+.founder-band-inner { display: flex; align-items: center; gap: 36px; max-width: 980px; }
+.founder-avatar { width: 150px; height: 150px; flex: none; border-radius: 50%; object-fit: cover; object-position: center 22%; border: 4px solid #fff; box-shadow: 0 0 0 3px var(--gold), var(--shadow); }
+.founder-band blockquote { margin: 6px 0 10px; font-family: var(--serif); font-size: clamp(1.2rem, 2.2vw, 1.55rem); line-height: 1.45; color: var(--forest); font-style: italic; }
+.founder-name { margin: 0 0 14px; color: var(--muted); }
+.founder-name b { color: var(--forest); }
+@media (max-width: 900px) { .founder-grid { grid-template-columns: 1fr; gap: 44px; } .founder-photo { max-width: 440px; margin: 0 auto; } }
+@media (max-width: 640px) { .founder-band-inner { flex-direction: column; text-align: center; gap: 18px; } .founder-avatar { width: 120px; height: 120px; } .founder-photo::before { inset: 12px -10px -12px 10px; } }

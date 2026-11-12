@@ -369,3 +369,25 @@ test('fundraiser is a past event on 7 Nov; anniversary shows as December, date t
   assert.equal(e.start_date, '2027-03-31'); assert.equal(e.date_tbc, 1); assert.equal(e.start_time, null);
   await c.req('POST', `/admin/events/${id}/delete`, { form: { _csrf: c.csrf } });
 });
+
+test('founder profile, phone/WhatsApp and social links are added once and shown', async () => {
+  // simulate a fresh server where two processes run the one-time updates together
+  await db.run("DELETE FROM team WHERE grp='founder'");
+  await db.run("DELETE FROM settings WHERE skey IN ('_fix_founder_2026_11','phone','whatsapp','facebook','instagram','tiktok')");
+  db.clearSettingsCache();
+  await Promise.all([applyContentFixes(), applyContentFixes()]);
+  assert.equal(Number((await db.get("SELECT COUNT(*) c FROM team WHERE name='Anne Ngendo Waithaka'")).c), 1, 'founder added exactly once');
+  db.clearSettingsCache();
+  const about = await (await fetch(base + '/about')).text();
+  assert.ok(about.includes('Anne Ngendo Waithaka') && about.includes('Founder &amp; Director') && about.includes('The Heart and Vision Behind'));
+  assert.ok(about.includes('Restoring Dignity. Sharing Love. Giving Hope.'));
+  const home = await (await fetch(base + '/')).text();
+  assert.ok(home.includes('Meet our founder') && home.includes('/about#founder'));
+  const contact = await (await fetch(base + '/contact')).text();
+  assert.ok(contact.includes('tel:+254722336386') && contact.includes('https://wa.me/254722336386'));
+  for (const s of ['facebook.com/people/Waithaka-Foundation-For-the-Elderly', 'instagram.com/waithakafoundation', 'tiktok.com/@waithakafoundation']) assert.ok(home.includes(s), s);
+  // a team member entered later is never overwritten by the update
+  await db.run("UPDATE settings SET svalue='0700 000 000' WHERE skey='phone'");
+  await applyContentFixes();
+  assert.equal((await db.get("SELECT svalue FROM settings WHERE skey='phone'")).svalue, '0700 000 000');
+});

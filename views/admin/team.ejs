@@ -7,8 +7,8 @@
     <input type="hidden" name="_csrf" value="<%= csrf %>"><% if (edit) { %><input type="hidden" name="id" value="<%= f.id %>"><% } %>
     <label>Full name *</label><input name="name" required value="<%= f.name || '' %>" maxlength="120">
     <label>Role</label><input name="role" value="<%= f.role || '' %>" maxlength="120" placeholder="e.g. Chairperson, Executive Officer, Treasurer">
-    <label>Group</label><select name="grp"><option value="board" <%= f.grp !== 'secretariat' ? 'selected' : '' %>>Board of Directors</option><option value="secretariat" <%= f.grp === 'secretariat' ? 'selected' : '' %>>Secretariat / staff</option></select>
-    <label>Short bio <span class="muted">(optional)</span></label><textarea name="bio" rows="3" maxlength="600"><%= f.bio || '' %></textarea>
+    <label>Group</label><select name="grp"><option value="founder" <%= f.grp === 'founder' ? 'selected' : '' %>>Founder (featured profile on About and homepage)</option><option value="board" <%= !f.grp || f.grp === 'board' ? 'selected' : '' %>>Board of Directors</option><option value="secretariat" <%= f.grp === 'secretariat' ? 'selected' : '' %>>Secretariat / staff</option></select>
+    <label>Bio <span class="muted">(optional; leave a blank line between paragraphs)</span></label><textarea name="bio" rows="6" maxlength="4000"><%= f.bio || '' %></textarea>
     <label>Photo <span class="muted">(optional, square works best)</span></label>
     <% if (f.photo) { %><div class="current-img"><img src="/uploads/<%= f.photo %>" alt=""><label class="check sm"><input type="checkbox" name="remove_image" value="1"> Remove photo</label></div><% } %>
     <input type="file" name="image" accept="image/*">
@@ -21,7 +21,7 @@
     <div class="plist">
       <% items.forEach((p) => { %>
       <div class="pitem"><div class="plogo round"><% if (p.photo) { %><img src="/uploads/<%= p.photo %>" alt=""><% } else { %><%= p.name.split(/\s+/).map(w => w[0]).slice(0, 2).join('') %><% } %></div>
-        <div><b><%= p.name %></b><small class="muted block"><%= p.role || '' %> · <%= p.grp === 'board' ? 'Board' : 'Secretariat' %></small></div>
+        <div><b><%= p.name %></b><small class="muted block"><%= p.role || '' %> · <%= p.grp === 'founder' ? 'Founder' : p.grp === 'board' ? 'Board' : 'Secretariat' %></small></div>
         <div class="nowrap"><a class="btn sm" href="/admin/team?edit=<%= p.id %>#form">Edit</a>
           <form method="post" action="/admin/team/<%= p.id %>/delete" class="inline" data-confirm="Remove <%= p.name %>?"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn sm danger-link">Delete</button></form></div></div>
       <% }) %>

@@ -59,6 +59,20 @@
   </div>
 </section>
 
+<% if (founder) { %>
+<section class="founder-band section-sm">
+  <div class="wrap founder-band-inner reveal">
+    <% if (founder.photo) { %><img class="founder-avatar" src="/uploads/<%= h.smallOf(founder.photo) %>" alt="<%= founder.name %>" loading="lazy" width="150" height="150"><% } %>
+    <div>
+      <span class="eyebrow" style="color:var(--clay)">Meet our founder</span>
+      <blockquote>“Caring for the elderly is more than charity; it is a ministry and a calling to serve God through humanity.”</blockquote>
+      <p class="founder-name"><b><%= founder.name %></b> · <%= founder.role %></p>
+      <a class="btn btn-line btn-sm" href="/about#founder">Read Anne's story <%- icon('arrow') %></a>
+    </div>
+  </div>
+</section>
+<% } %>
+
 <section class="bg-forest">
   <div class="wrap">
     <div class="section-head center reveal">

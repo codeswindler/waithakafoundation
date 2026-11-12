@@ -46,12 +46,14 @@ router.get('/', wrap(async (req, res) => {
   // Homepage card: only events the team has confirmed (setup placeholders are never promoted here).
   const confirmed = (await upcoming(20)).filter((e) => !e.sample);
   const nextUp = confirmed.find((e) => e.featured) || confirmed[0] || null;
-  res.render('home', { title: null, slides, upcoming: up, next: nextUp, past: pastList, featuredMedia, milestones, partners: partnerList, stats: st });
+  const founder = await get("SELECT * FROM team WHERE grp='founder' ORDER BY sort, id LIMIT 1");
+  res.render('home', { title: null, founder, slides, upcoming: up, next: nextUp, past: pastList, featuredMedia, milestones, partners: partnerList, stats: st });
 }));
 
 router.get('/about', wrap(async (req, res) => {
   res.render('about', {
     title: 'About us',
+    founders: await all("SELECT * FROM team WHERE grp='founder' ORDER BY sort, id"),
     board: await all("SELECT * FROM team WHERE grp='board' ORDER BY sort, id"),
     secretariat: await all("SELECT * FROM team WHERE grp='secretariat' ORDER BY sort, id"),
   });

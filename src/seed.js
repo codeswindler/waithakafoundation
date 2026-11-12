@@ -186,6 +186,17 @@ async function importEvents() {
  * overwrites an event the team has already edited (editing in the admin clears the sample flag).
  */
 async function applyContentFixes() {
+  // Same lock as the photo imports: two processes starting together must not both apply a fix.
+  const conn = await getPool().getConnection();
+  try {
+    const [[lock]] = await conn.query("SELECT GET_LOCK('waithaka_import_gallery', 120) AS ok");
+    if (lock.ok) await applyContentFixesLocked();
+  } finally {
+    await conn.query("SELECT RELEASE_LOCK('waithaka_import_gallery')").catch(() => {});
+    conn.release();
+  }
+}
+async function applyContentFixesLocked() {
   // 1. The land fundraiser happened on 7 November 2026 (not the placeholder 28 November).
   if (!(await get("SELECT skey FROM settings WHERE skey='_fix_fundraiser_2026_11_07'"))) {
     await run(`UPDATE events SET start_date=?, start_time=NULL, end_time=NULL, venue='', summary=?, body=?, featured=0
@@ -197,6 +208,27 @@ async function applyContentFixes() {
   if (!(await get("SELECT skey FROM settings WHERE skey='_fix_tagline_logo'"))) {
     await run("UPDATE settings SET svalue='Celebrating Life' WHERE skey='tagline' AND svalue='Honouring the pillars of our community'");
     await setSetting('_fix_tagline_logo', new Date().toISOString());
+  }
+  // 4. Founder profile, phone/WhatsApp and social links supplied by the foundation (fills only empty settings).
+  const founderFile = path.join(__dirname, '..', 'seed', 'team', 'founder.json');
+  if (fs.existsSync(founderFile) && !(await get("SELECT skey FROM settings WHERE skey='_fix_founder_2026_11'"))) {
+    const f = JSON.parse(fs.readFileSync(founderFile, 'utf8'));
+    if (!(await get('SELECT id FROM team WHERE name=?', f.name))) {
+      let photo = null;
+      const src = path.join(__dirname, '..', 'seed', 'team', f.photo || '');
+      if (f.photo && fs.existsSync(src)) {
+        const tmp = path.join(UPLOAD_DIR, 'tmp'); fs.mkdirSync(tmp, { recursive: true });
+        const copy = path.join(tmp, 'team-' + Date.now()); fs.copyFileSync(src, copy);
+        const r = await processImage(copy, { maxLarge: 900, maxSmall: 360 });
+        photo = r.file;
+      }
+      await run("INSERT INTO team(name,role,bio,photo,grp,sort) VALUES(?,?,?,?, 'founder', 0)", f.name, f.role, f.bio, photo);
+    }
+    for (const [k, v] of Object.entries(f.settings || {})) {
+      const cur = await get('SELECT svalue FROM settings WHERE skey=?', k);
+      if (!cur || !String(cur.svalue || '').trim()) await setSetting(k, v);
+    }
+    await setSetting('_fix_founder_2026_11', new Date().toISOString());
   }
   // 2. The upcoming event is the 5th anniversary in December (date to be confirmed), not the Christmas placeholder.
   if (!(await get("SELECT skey FROM settings WHERE skey='_fix_anniversary_2026'"))) {
