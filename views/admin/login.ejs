@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
 <title>Sign in · <%= s.site_name %> admin</title>
-<link rel="icon" href="/static/img/logo-mark.svg" type="image/svg+xml">
+<link rel="icon" href="/static/img/favicon-64.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/css/admin.css">
 </head>
 <body class="login-page">
   <div class="login-art"<% if (s.hero_image) { %> style="--bg:url('/uploads/<%= s.hero_image %>')"<% } %>>
-    <div><img src="/static/img/logo-mark.svg" alt="" width="64" height="64"><h2><%= s.site_full_name %></h2><p>Update events, photos, videos and website content. Changes go live immediately.</p></div>
+    <div><img src="/static/img/waithaka-logo-badge.png" alt="" width="64" height="64"><h2><%= s.site_full_name %></h2><p>Update events, photos, videos and website content. Changes go live immediately.</p></div>
   </div>
   <div class="login-box">
     <form method="post" action="/admin/login" class="card">

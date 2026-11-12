@@ -246,3 +246,5 @@ input[type=file] { font: inherit; font-size: .88rem; }
   .kpi b { font-size: 1.7rem; }
   .quick { grid-template-columns: 1fr; }
 }
+.side-brand img { width: 44px; height: 44px; border-radius: 50%; }
+.login-art img { border-radius: 50%; }

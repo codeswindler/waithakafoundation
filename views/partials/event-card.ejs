@@ -1,7 +1,7 @@
 <% const isUp = e.start_date >= h.today(); %>
 <a class="event-card reveal <%= locals.delay || '' %>" href="/events/<%= e.slug %>">
   <div class="thumb">
-    <% if (e.cover_file) { %><img src="/uploads/<%= e.cover_thumb || e.cover_file %>" alt="" loading="lazy"><% } else { %><div class="ph"><img src="/static/img/logo-mark.svg" alt=""><span><%= isUp ? 'Save the date' : 'Waithaka Foundation' %></span></div><% } %>
+    <% if (e.cover_file) { %><img src="/uploads/<%= e.cover_thumb || e.cover_file %>" alt="" loading="lazy"><% } else { %><div class="ph"><img src="/static/img/waithaka-logo-badge.png" alt=""><span><%= isUp ? 'Save the date' : 'Waithaka Foundation' %></span></div><% } %>
     <% if (e.date_tbc) { %><div class="date-chip"><b><%= h.fmtMon(e.start_date) %></b><span>TBC</span></div><% } else { %><div class="date-chip"><b><%= h.fmtDay(e.start_date) %></b><span><%= h.fmtMon(e.start_date) %> <%= h.fmtYear(e.start_date).slice(2) %></span></div><% } %>
     <span class="tag <%= isUp ? '' : 'past' %>"><%= isUp ? 'Upcoming' : (e.photo_count ? `${e.photo_count} photo${e.photo_count > 1 ? 's' : ''}` : e.media_count ? 'Video' : 'Past event') %></span>
   </div>

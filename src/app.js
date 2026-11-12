@@ -49,7 +49,7 @@ async function createApp() {
       }));
     } catch (e) { next(e); }
   });
-  app.get('/favicon.ico', (req, res) => res.redirect(301, '/static/img/logo-mark.svg'));
+  app.get('/favicon.ico', (req, res) => res.redirect(301, '/static/img/favicon-64.png'));
   app.get('/robots.txt', (req, res) => res.type('text').send(`User-agent: *\nDisallow: /admin\nSitemap: ${process.env.BASE_URL || `${req.protocol}://${req.get('host')}`}/sitemap.xml\n`));
   // For uptime checks / PM2 monitoring: confirms the app and the database both answer.
   app.get('/healthz', async (req, res) => {
