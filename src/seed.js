@@ -204,6 +204,11 @@ async function applyContentFixesLocked() {
       FUNDRAISER.date, FUNDRAISER.summary, FUNDRAISER.body);
     await setSetting('_fix_fundraiser_2026_11_07', new Date().toISOString());
   }
+  // 5. Clearer wording for the "80+" headline number, unless the team changed it.
+  if (!(await get("SELECT skey FROM settings WHERE skey='_fix_age_label'"))) {
+    await run("UPDATE settings SET svalue='Elders aged 80 and above' WHERE skey='stat_age_label' AND svalue='Years: the elders we serve'");
+    await setSetting('_fix_age_label', new Date().toISOString());
+  }
   // 3. The official tagline from the foundation's logo, unless the team has set their own.
   if (!(await get("SELECT skey FROM settings WHERE skey='_fix_tagline_logo'"))) {
     await run("UPDATE settings SET svalue='Celebrating Life' WHERE skey='tagline' AND svalue='Honouring the pillars of our community'");

@@ -139,7 +139,7 @@ const DEFAULT_SETTINGS = {
   stat_since: '2022',
   stat_since_label: 'Serving Kabuku since',
   stat_age: '80+',
-  stat_age_label: 'Years: the elders we serve',
+  stat_age_label: 'Elders aged 80 and above',
   stat_events: '12',
   stat_events_label: 'Gatherings every year',
   about_story: 'The Waithaka Foundation is a non-profit Community Based Organization (CBO) dedicated to promoting the health, dignity and well-being of senior citizens over 80 years of age.\n\nThe foundation was started in 2022 as a response to the growing challenges faced by senior citizens in Kabuku, Limuru areas of Kiambu County: isolation, poor health, poverty and limited access to healthcare and social support.\n\nIt began as Corporate Social Responsibility by the late Waithaka\'s family, as a way of giving back to the society. Today the foundation is based in Limuru Sub-County, where it serves one hundred registered members.',

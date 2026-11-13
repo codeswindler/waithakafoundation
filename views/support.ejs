@@ -37,7 +37,8 @@
     <div class="reveal">
       <span class="eyebrow" style="color:var(--clay)">Give directly</span>
       <h2>Payment details</h2>
-      <p class="muted">Please use the account reference shown so we can thank you and account for your gift. Corporate partners can request an invoice and a sponsorship proposal through the form below.</p>
+      <% if (s.mpesa_paybill || s.bank_details) { %><p class="muted">Please use the account reference shown so we can thank you and account for your gift. Corporate partners can request an invoice and a sponsorship proposal through the form below.</p>
+      <% } else { %><p class="muted">Call or message us and we will share our M-Pesa and bank details directly. Corporate partners can also request an invoice and a sponsorship proposal through the form below.</p><% } %>
       
     </div>
     <div class="pay-box reveal d1">

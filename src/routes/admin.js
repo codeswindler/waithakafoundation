@@ -79,7 +79,7 @@ router.get('/', wrap(async (req, res) => {
     all('SELECT * FROM messages ORDER BY created_at DESC, id DESC LIMIT 5'),
   ]);
   const checklist = [
-    { ok: !!s.email || !!s.phone, text: 'Add the foundation\'s phone number and email', href: '/admin/settings#contact' },
+    { ok: !!s.email && !!s.phone, text: s.phone && !s.email ? 'Add the foundation\'s email address' : !s.phone && s.email ? 'Add the foundation\'s phone number' : 'Add the foundation\'s phone number and email', href: '/admin/settings#contact' },
     { ok: !!s.mpesa_paybill || !!s.bank_details, text: 'Add M-Pesa Paybill or bank details so people can give', href: '/admin/settings#giving' },
     { ok: !!h.num(s.campaign_goal), text: 'Set the land campaign target (and amount raised so far)', href: '/admin/settings#campaign' },
     { ok: sampleEvents.length === 0, text: sampleEvents.length ? `Check the details of ${sampleEvents.length} event${sampleEvents.length > 1 ? 's' : ''} added at setup (venue, attendance, what was achieved)` : 'Events added at setup have been checked', href: '/admin/events' },

@@ -248,3 +248,7 @@ input[type=file] { font: inherit; font-size: .88rem; }
 }
 .side-brand img { width: 44px; height: 44px; border-radius: 50%; }
 .login-art img { border-radius: 50%; }
+
+/* Mobile alignment fixes (audit 13 Nov) */
+.card-head > a { display: inline-block; padding: 9px 4px; margin: -9px -4px; }
+@media (max-width: 600px) { .kpis .kpi:last-child:nth-child(odd) { grid-column: 1 / -1; } }

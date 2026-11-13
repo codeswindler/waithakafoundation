@@ -391,3 +391,15 @@ test('founder profile, phone/WhatsApp and social links are added once and shown'
   await applyContentFixes();
   assert.equal((await db.get("SELECT svalue FROM settings WHERE skey='phone'")).svalue, '0700 000 000');
 });
+
+test('launch checklist only ticks contact details when both phone and email exist', async () => {
+  const c = await loggedIn();
+  await db.setSetting('phone', '+254 722 336 386'); await db.setSetting('email', '');
+  let r = await c.req('GET', '/admin');
+  assert.ok(r.text_.includes("Add the foundation&#39;s email address"), 'asks for the missing email');
+  await db.setSetting('email', 'info@example.test');
+  r = await c.req('GET', '/admin');
+  assert.ok(!r.text_.includes('email address</a>'), 'item resolved once both are set');
+  const gallery = await (await fetch(base + '/gallery')).text();
+  if (!Number((await db.get("SELECT COUNT(*) c FROM media WHERE kind!='image'")).c)) assert.ok(!gallery.includes('Videos (0)'), 'no empty Videos filter');
+});

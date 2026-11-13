@@ -770,3 +770,16 @@ textarea { min-height: 140px; resize: vertical; }
 .founder-name b { color: var(--forest); }
 @media (max-width: 900px) { .founder-grid { grid-template-columns: 1fr; gap: 44px; } .founder-photo { max-width: 440px; margin: 0 auto; } }
 @media (max-width: 640px) { .founder-band-inner { flex-direction: column; text-align: center; gap: 18px; } .founder-avatar { width: 120px; height: 120px; } .founder-photo::before { inset: 12px -10px -12px 10px; } }
+
+/* ================= Mobile alignment fixes (audit 13 Nov) ================= */
+@media (max-width: 760px) {
+  /* "Swipe for more" follows the heading's alignment in centred sections */
+  .section-head.center ~ .swipe-hint, .center + .swipe-hint { justify-content: center; }
+  /* contact details: full-height tap targets */
+  .contact-list a, .contact-list b { display: inline-block; padding: 8px 0; margin: -8px 0; min-height: 36px; line-height: 20px; }
+}
+@media (max-width: 900px) {
+  /* banner photo counter arrows: thumb-sized */
+  .hero-counter button { width: 40px !important; height: 40px !important; }
+  .hero-counter button svg { width: 18px; height: 18px; }
+}
