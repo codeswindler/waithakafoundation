@@ -768,7 +768,7 @@ textarea { min-height: 140px; resize: vertical; }
 .founder-band blockquote { margin: 6px 0 10px; font-family: var(--serif); font-size: clamp(1.2rem, 2.2vw, 1.55rem); line-height: 1.45; color: var(--forest); font-style: italic; }
 .founder-name { margin: 0 0 14px; color: var(--muted); }
 .founder-name b { color: var(--forest); }
-@media (max-width: 900px) { .founder-grid { grid-template-columns: 1fr; gap: 44px; } .founder-photo { max-width: 440px; margin: 0 auto; } }
+@media (max-width: 900px) { .founder-grid { grid-template-columns: 1fr; gap: 44px; } .founder-photo { width: 100%; max-width: 440px; margin: 0 auto; } }
 @media (max-width: 640px) { .founder-band-inner { flex-direction: column; text-align: center; gap: 18px; } .founder-avatar { width: 120px; height: 120px; } .founder-photo::before { inset: 12px -10px -12px 10px; } }
 
 /* ================= Mobile alignment fixes (audit 13 Nov) ================= */

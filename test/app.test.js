@@ -403,3 +403,10 @@ test('launch checklist only ticks contact details when both phone and email exis
   const gallery = await (await fetch(base + '/gallery')).text();
   if (!Number((await db.get("SELECT COUNT(*) c FROM media WHERE kind!='image'")).c)) assert.ok(!gallery.includes('Videos (0)'), 'no empty Videos filter');
 });
+
+test('founder photo keeps its full width on phones (no collapse inside the one-column grid)', () => {
+  const css = fs.readFileSync(path.join(__dirname, '..', 'public', 'css', 'site.css'), 'utf8');
+  const line = css.split('\n').find((l) => l.startsWith('@media (max-width: 900px)') && l.includes('.founder-photo {')) || '';
+  const rule = (line.match(/\.founder-photo\s*\{([^}]*)\}/) || [])[1] || '';
+  assert.match(rule, /width:\s*100%/, 'founder photo must stretch to the column on phones');
+});
