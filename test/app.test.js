@@ -20,7 +20,7 @@ process.env.ADMIN_PASSWORD = 'first-test-pass-123';
 
 const sharp = require('sharp');
 const { createApp } = require('../src/app');
-const { ensureAdmin, seedContent, importGallery, importEvents, applyContentFixes } = require('../src/seed');
+const { ensureAdmin, seedContent, importGallery, importEvents, importEventPhotos, applyContentFixes } = require('../src/seed');
 const db = require('../src/db');
 
 let server, base;
@@ -63,6 +63,7 @@ before(async () => {
   await applyContentFixes();
   await importGallery();
   await importEvents();
+  await importEventPhotos();
   const app = await createApp();
   await new Promise((res) => { server = app.listen(0, res); });
   base = `http://127.0.0.1:${server.address().port}`;
@@ -409,4 +410,20 @@ test('founder photo keeps its full width on phones (no collapse inside the one-c
   const line = css.split('\n').find((l) => l.startsWith('@media (max-width: 900px)') && l.includes('.founder-photo {')) || '';
   const rule = (line.match(/\.founder-photo\s*\{([^}]*)\}/) || [])[1] || '';
   assert.match(rule, /width:\s*100%/, 'founder photo must stretch to the column on phones');
+});
+
+test('fundraiser photos are added to the 7 Nov event once, with a cover, and deleted ones stay deleted', async () => {
+  const f = await db.get("SELECT * FROM events WHERE slug='land-fundraiser-waithaka-foundation-complex'");
+  const count = async () => Number((await db.get("SELECT COUNT(*) c FROM media WHERE event_id=? AND kind='image'", f.id)).c);
+  assert.ok((await count()) >= 30, 'all 30 fundraiser photos attached');
+  assert.ok(f.cover_media_id, 'event has a cover photo');
+  assert.equal(f.venue, "St. Paul's University, Limuru");
+  assert.equal(await importEventPhotos(), 0, 'a restart adds nothing twice');
+  const one = await db.get('SELECT id FROM media WHERE event_id=? ORDER BY id DESC LIMIT 1', f.id);
+  const before = await count();
+  await db.run('DELETE FROM media WHERE id=?', one.id);
+  assert.equal(await importEventPhotos(), 0, 'a deleted photo is not brought back');
+  assert.equal(await count(), before - 1);
+  const page = await (await fetch(base + '/events/' + f.slug)).text();
+  assert.ok(page.includes('Contributions announced for the land') && page.includes("St. Paul&#39;s University"));
 });

@@ -182,6 +182,56 @@ async function importEvents() {
 }
 
 /**
+ * Adds photos to existing events from seed/gallery/event-photos/<event-slug>/photos.json
+ * (e.g. the professional photos of the 7 Nov 2026 fundraiser). Each photo is added once and remembered,
+ * so a photo deleted in the admin does not come back. Fills the event's venue and cover only if empty.
+ */
+async function importEventPhotos() {
+  const root = path.join(__dirname, '..', 'seed', 'gallery', 'event-photos');
+  if (!fs.existsSync(root)) return 0;
+  const conn = await getPool().getConnection();
+  let n = 0;
+  try {
+    const [[lock]] = await conn.query("SELECT GET_LOCK('waithaka_import_gallery', 120) AS ok");
+    if (!lock.ok) return 0;
+    const row = await get("SELECT svalue FROM settings WHERE skey='_imported_event_photos'");
+    const done = new Set(row ? JSON.parse(row.svalue) : []);
+    const tmp = path.join(UPLOAD_DIR, 'tmp');
+    fs.mkdirSync(tmp, { recursive: true });
+    for (const folder of fs.readdirSync(root)) {
+      const listFile = path.join(root, folder, 'photos.json');
+      if (!fs.existsSync(listFile)) continue;
+      const set = JSON.parse(fs.readFileSync(listFile, 'utf8'));
+      const ev = await get('SELECT id, venue, cover_media_id FROM events WHERE slug=?', set.slug || folder);
+      if (!ev) continue; // the team removed this event: leave it removed
+      const base = Number((await get('SELECT COALESCE(MAX(sort),-1) AS m FROM media WHERE event_id=?', ev.id)).m) + 1;
+      let first = null;
+      for (const [i, p] of (set.photos || []).entries()) {
+        const key = `${set.slug || folder}/${p.file}`;
+        const src = path.join(root, folder, p.file);
+        if (done.has(key) || !fs.existsSync(src)) continue;
+        const copy = path.join(tmp, 'eventphoto-' + Date.now() + '-' + i);
+        fs.copyFileSync(src, copy);
+        const r = await processImage(copy);
+        const { insertId } = await run("INSERT INTO media(kind,file,thumb,title,caption,event_id,featured,width,height,sort) VALUES('image',?,?,?,?,?,?,?,?,?)",
+          r.file, r.thumb, p.title || '', p.caption || '', ev.id, p.featured ? 1 : 0, r.width, r.height, base + i);
+        if (!first) first = insertId;
+        done.add(key);
+        await setSetting('_imported_event_photos', JSON.stringify([...done])); // record each one immediately
+        n++;
+      }
+      if (first && !ev.cover_media_id) await run('UPDATE events SET cover_media_id=? WHERE id=?', first, ev.id);
+      if (set.venue && !String(ev.venue || '').trim()) await run('UPDATE events SET venue=? WHERE id=?', set.venue, ev.id);
+    }
+    if (n) console.log(`  Added ${n} event photo${n > 1 ? 's' : ''}.`);
+  } finally {
+    await conn.query("SELECT RELEASE_LOCK('waithaka_import_gallery')").catch(() => {});
+    conn.release();
+  }
+  return n;
+}
+
+/**
  * One-off corrections to content created by earlier versions of the site. Each runs once and never
  * overwrites an event the team has already edited (editing in the admin clears the sample flag).
  */
@@ -252,4 +302,4 @@ async function applyContentFixesLocked() {
   }
 }
 
-module.exports = { ensureAdmin, seedContent, importGallery, importEvents, applyContentFixes };
+module.exports = { ensureAdmin, seedContent, importGallery, importEvents, importEventPhotos, applyContentFixes };
