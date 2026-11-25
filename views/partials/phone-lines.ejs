@@ -1,0 +1,3 @@
+<% [['phone', 'whatsapp', 'Call us'], ['phone_alt', 'whatsapp_alt', 'Alternative line']].forEach(([p, w, label]) => { if (!s[p] && !s[w]) return; const n = s[p] || s[w]; %>
+        <li><span class="ic"><%- icon('phone') %></span><div><small><%= label %></small><a href="tel:<%= n.replace(/\s/g,'') %>"><%= n %></a><% if (s[w]) { %> <a class="wa-btn" href="<%= h.waHref(s[w]) %>" target="_blank" rel="noopener" aria-label="WhatsApp <%= s[w] %>"><%- icon('whatsapp') %> WhatsApp</a><% } %></div></li>
+<% }) %>

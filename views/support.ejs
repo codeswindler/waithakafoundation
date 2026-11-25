@@ -1,6 +1,6 @@
 <%- include('partials/head') %>
 <%- include('partials/page-hero', { crumb: 'Support us', heading: 'Stand with the elders of Limuru', lede: 'Your gift, partnership or time keeps our monthly gatherings going, and helps us build a permanent home for our elders.' }) %>
-<% const f = locals.form || {}; const k = locals.kind || 'partner'; const hasPay = s.mpesa_paybill || s.bank_details; %>
+<% const f = locals.form || {}; const k = locals.kind || 'partner'; %>
 
 <section id="give">
   <div class="wrap">
@@ -10,7 +10,7 @@
         <h3>Give a gift</h3>
         <p class="muted">Every shilling goes to food, health care and transport for our elders.</p>
         <ul><li>Food &amp; supplies for a member</li><li>Health check-ups &amp; medication</li><li>Transport to the gathering</li></ul>
-        <a class="btn btn-forest" href="#pay">How to give</a>
+        <div class="flex-gap" style="margin-top:auto"><a class="btn btn-forest" href="#pay">How to give</a><a class="btn btn-line" href="/giving">See gifts at work</a></div>
       </div>
       <div class="give feature reveal d1">
         <h3>Sponsor a gathering</h3>
@@ -42,20 +42,7 @@
       
     </div>
     <div class="pay-box reveal d1">
-      <% if (hasPay) { %>
-        <% if (s.mpesa_paybill) { %>
-          <div class="pay-row"><div><span>M-Pesa Paybill</span><br><b><%= s.mpesa_paybill %></b></div><button class="copy-btn" data-copy="<%= s.mpesa_paybill %>">Copy</button></div>
-          <% if (s.mpesa_account) { %><div class="pay-row"><div><span>Account number</span><br><b><%= s.mpesa_account %></b></div><button class="copy-btn" data-copy="<%= s.mpesa_account %>">Copy</button></div><% } %>
-        <% } %>
-        <% if (s.bank_details) { %><div class="pay-row"><div><span>Bank transfer</span><div style="white-space:pre-line;font-weight:600;color:var(--forest);margin-top:4px"><%= s.bank_details %></div></div></div><% } %>
-      <% } else { %>
-        <h3>Giving details</h3>
-        <p class="muted">Our official giving channels are being finalised. Contact us and we will share M-Pesa and bank details directly.</p>
-        <div class="flex-gap">
-          <% if (s.phone) { %><a class="btn btn-forest" href="tel:<%= s.phone.replace(/\s/g,'') %>"><%- icon('phone') %> <%= s.phone %></a><% } %>
-          <a class="btn btn-gold" href="#form">Send us a message</a>
-        </div>
-      <% } %>
+      <%- include('partials/pay-box') %>
     </div>
   </div>
 </section>
@@ -78,6 +65,7 @@
       <h2>Partner or volunteer with us</h2>
       <p class="muted">Tell us a little about yourself or your organisation. Our Executive Officer will get back to you.</p>
       <ul class="contact-list" style="margin-top:28px">
+<%- include('partials/phone-lines') %>
         <li><span class="ic"><%- icon('handshake') %></span><div><small>Companies &amp; foundations</small><b>CSR partnerships &amp; event sponsorship</b></div></li>
         <li><span class="ic"><%- icon('hands') %></span><div><small>Individuals</small><b>Volunteering &amp; personal giving</b></div></li>
         <li><span class="ic"><%- icon('home') %></span><div><small>Land &amp; building</small><b>Support for the Foundation Complex</b></div></li>

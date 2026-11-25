@@ -8,7 +8,7 @@ if (fs.existsSync(envFile)) process.loadEnvFile(envFile);
 
 const { init, close } = require('./src/db');
 const { createApp } = require('./src/app');
-const { ensureAdmin, seedContent, importGallery, importEvents, importEventPhotos, applyContentFixes } = require('./src/seed');
+const { assignGivingPhotos, ensureAdmin, seedContent, importGallery, importEvents, importEventPhotos, applyContentFixes } = require('./src/seed');
 
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || '0.0.0.0';
@@ -25,7 +25,7 @@ const HOST = process.env.HOST || '0.0.0.0';
     if (process.send) process.send('ready'); // PM2 wait_ready
     // Photo imports can take a while on a small server; run them after the site is up.
     // A database lock keeps them safe if another process (e.g. a PM2 reload) runs them too.
-    (async () => { await importGallery(); await importEvents(); await importEventPhotos(); })()
+    (async () => { await importGallery(); await importEvents(); await importEventPhotos(); await assignGivingPhotos(); })()
       .catch((e) => console.error('Photo import failed:', e.message || e));
   });
   // Graceful shutdown for PM2 reloads: finish in-flight requests, then close the DB pool.

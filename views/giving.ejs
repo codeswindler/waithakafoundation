@@ -1,0 +1,36 @@
+<%- include('partials/head') %>
+<%- include('partials/page-hero', { crumb: 'Giving', heading: 'See what your giving does', lede: 'Real photos from our gatherings: the food, warmth, meals and care that reach our elders because someone chose to give.' }) %>
+
+<% if (giving.length) { %>
+<nav class="gv-jump" aria-label="Ways elders are supported"><div class="wrap">
+  <% giving.forEach((g) => { %><a href="#<%= g.key %>"><%- icon(g.icon) %> <%= g.title %></a><% }) %>
+  <a class="give-now" href="#pay"><%- icon('heart') %> Give now</a>
+</div></nav>
+<% } %>
+
+<% giving.forEach((g, i) => { %>
+<section class="section-sm<%= i % 2 ? ' bg-paper' : '' %>" id="<%= g.key %>">
+  <div class="wrap">
+    <div class="head-row">
+      <div class="section-head reveal"><span class="eyebrow">How elders are supported</span><h2><%= g.title %></h2><p><%= g.text %></p></div>
+      <a class="btn btn-line reveal" href="#pay"><%- icon('heart') %> <%= g.cta %></a>
+    </div>
+    <div class="gv-grid" data-lb-group>
+      <% g.photos.forEach((m) => { %><%- include('partials/media-tile', { m }) %><% }) %>
+    </div>
+  </div>
+</section>
+<% }) %>
+
+<section id="pay" class="bg-forest">
+  <div class="wrap split">
+    <div class="reveal">
+      <span class="eyebrow">Give today</span>
+      <h2>Put a smile on an elder's face</h2>
+      <p>Your gift goes towards food, warm blankets, meals and care for our elders. You can also sponsor a whole gathering or give your time.</p>
+      <div class="flex-gap"><a class="btn btn-gold" href="/support#form">Sponsor a gathering</a><a class="btn btn-ghost" href="/support?kind=volunteer#form">Volunteer with us</a></div>
+    </div>
+    <div class="pay-box reveal d1"><%- include('partials/pay-box') %></div>
+  </div>
+</section>
+<%- include('partials/foot') %>

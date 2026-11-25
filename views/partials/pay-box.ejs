@@ -1,0 +1,15 @@
+<% if (s.mpesa_paybill || s.bank_details) { %>
+  <% if (s.mpesa_paybill) { %>
+    <div class="pay-row"><div><span>M-Pesa Paybill</span><br><b><%= s.mpesa_paybill %></b></div><button class="copy-btn" data-copy="<%= s.mpesa_paybill %>">Copy</button></div>
+    <% if (s.mpesa_account) { %><div class="pay-row"><div><span>Account number</span><br><b><%= s.mpesa_account %></b></div><button class="copy-btn" data-copy="<%= s.mpesa_account %>">Copy</button></div><% } %>
+    <div class="pay-steps"><b>How to pay</b><ol><li>Open M-Pesa and choose Lipa na M-Pesa, then Pay Bill.</li><li>Enter the business number<%= s.mpesa_account ? ' and account number' : '' %> above.</li><li>Enter your amount and M-Pesa PIN, then confirm.</li></ol></div>
+  <% } %>
+  <% if (s.bank_details) { %><div class="pay-row"><div><span>Bank transfer</span><div style="white-space:pre-line;font-weight:600;color:var(--forest);margin-top:4px"><%= s.bank_details %></div></div></div><% } %>
+<% } else { %>
+  <h3>Giving details</h3>
+  <p class="muted">Our official giving channels are being finalised. Contact us and we will share M-Pesa and bank details directly.</p>
+  <div class="flex-gap">
+    <% if (s.phone) { %><a class="btn btn-forest" href="tel:<%= s.phone.replace(/\s/g,'') %>"><%- icon('phone') %> <%= s.phone %></a><% } %>
+    <a class="btn btn-gold" href="/support#form">Send us a message</a>
+  </div>
+<% } %>

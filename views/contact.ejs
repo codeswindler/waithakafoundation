@@ -7,8 +7,7 @@
       <h2>Get in touch</h2>
       <ul class="contact-list" style="margin-top:24px">
         <li><span class="ic"><%- icon('pin') %></span><div><small>Where we serve</small><b><%= s.address %></b></div></li>
-        <% if (s.phone) { %><li><span class="ic"><%- icon('phone') %></span><div><small>Call us</small><a href="tel:<%= s.phone.replace(/\s/g,'') %>"><%= s.phone %></a></div></li><% } %>
-        <% if (s.whatsapp) { %><li><span class="ic"><%- icon('whatsapp') %></span><div><small>WhatsApp</small><a href="https://wa.me/<%= h.waNumber(s.whatsapp) %>" target="_blank" rel="noopener"><%= s.whatsapp %></a></div></li><% } %>
+<%- include('partials/phone-lines') %>
         <% if (s.email) { %><li><span class="ic"><%- icon('mail') %></span><div><small>Email</small><a href="mailto:<%= s.email %>"><%= s.email %></a></div></li><% } %>
         <li><span class="ic"><%- icon('calendar') %></span><div><small>Gatherings</small><b>Monthly, in Kabuku &amp; Limuru</b></div></li>
       </ul>

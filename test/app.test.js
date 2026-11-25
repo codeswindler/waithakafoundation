@@ -20,7 +20,7 @@ process.env.ADMIN_PASSWORD = 'first-test-pass-123';
 
 const sharp = require('sharp');
 const { createApp } = require('../src/app');
-const { ensureAdmin, seedContent, importGallery, importEvents, importEventPhotos, applyContentFixes } = require('../src/seed');
+const { assignGivingPhotos, ensureAdmin, seedContent, importGallery, importEvents, importEventPhotos, applyContentFixes } = require('../src/seed');
 const db = require('../src/db');
 
 let server, base;
@@ -64,6 +64,7 @@ before(async () => {
   await importGallery();
   await importEvents();
   await importEventPhotos();
+  await assignGivingPhotos();
   const app = await createApp();
   await new Promise((res) => { server = app.listen(0, res); });
   base = `http://127.0.0.1:${server.address().port}`;
@@ -426,4 +427,55 @@ test('fundraiser photos are added to the 7 Nov event once, with a cover, and del
   assert.equal(await count(), before - 1);
   const page = await (await fetch(base + '/events/' + f.slug)).text();
   assert.ok(page.includes('Contributions announced for the land') && page.includes("St. Paul&#39;s University"));
+});
+
+test('confirmed M-Pesa details fill an empty site once and never overwrite the team', async () => {
+  const rerun = async (paybill, account) => {
+    await db.setSetting('mpesa_paybill', paybill); await db.setSetting('mpesa_account', account);
+    await db.run("DELETE FROM settings WHERE skey='_fix_mpesa_2026_11'");
+    await applyContentFixes();
+    const v = async (k) => (await db.get('SELECT svalue FROM settings WHERE skey=?', k)).svalue;
+    return [await v('mpesa_paybill'), await v('mpesa_account')];
+  };
+  assert.deepEqual(await rerun('123456', ''), ['123456', ''], 'never mixes our account with another Paybill');
+  assert.deepEqual(await rerun('', 'LAND'), ['', 'LAND']);
+  assert.deepEqual(await rerun('', ''), ['400200', '1199386']);
+  const page = await (await fetch(base + '/support')).text();
+  assert.ok(page.includes('data-copy="400200"') && page.includes('data-copy="1199386"'), 'donors can copy both numbers');
+  assert.ok(!page.includes('being finalised'));
+  // once applied, clearing it in the admin sticks
+  await db.setSetting('mpesa_paybill', ''); await db.setSetting('mpesa_account', '');
+  await applyContentFixes();
+  assert.equal((await db.get("SELECT svalue FROM settings WHERE skey='mpesa_paybill'")).svalue, '');
+});
+
+test('giving page shows real photos by part, the team can change them, and the starting set is applied once', async () => {
+  await db.setSetting('mpesa_paybill', '400200'); await db.setSetting('mpesa_account', '1199386');
+  const page = await (await fetch(base + '/giving')).text();
+  for (const id of ['food', 'warmth', 'meals', 'care']) assert.ok(page.includes(`id="${id}"`), id);
+  assert.ok((page.match(/data-lb="image"/g) || []).length >= 14, 'giving photos shown');
+  assert.ok(page.includes('data-copy="400200"'));
+  assert.ok((await (await fetch(base + '/')).text()).includes('How your giving supports our elders'));
+  assert.equal(await assignGivingPhotos(), 0);
+  const c = await loggedIn();
+  const m = await db.get("SELECT * FROM media WHERE giving='care' LIMIT 1");
+  const adminPage = await c.req('GET', '/admin/media');
+  assert.ok(adminPage.text_.includes('Giving: A helping hand'));
+  const csrf = adminPage.text_.match(/name="_csrf" value="([^"]+)"/)[1];
+  await c.req('POST', '/admin/media/' + m.id, { form: { _csrf: csrf, title: m.title, caption: '', event_id: m.event_id || '', giving: 'food', sort: m.sort, back: '/admin/media' } });
+  assert.equal((await db.get('SELECT giving FROM media WHERE id=?', m.id)).giving, 'food');
+});
+
+test('both phone lines appear with WhatsApp links and a number chooser', async () => {
+  for (const [k, v] of Object.entries({ phone: '+254 722 336 386', whatsapp: '+254 722 336 386', phone_alt: '+254 705 204 854', whatsapp_alt: '+254 705 204 854' })) await db.setSetting(k, v);
+  for (const p of ['/', '/contact', '/support', '/giving']) {
+    const html = await (await fetch(base + p)).text();
+    assert.ok(!/href="tel:[^"]*[ ]/.test(html), p + ': call links have no spaces');
+    assert.ok(html.includes('tel:+254705204854') && html.includes('tel:+254722336386'), p);
+    assert.ok(html.includes('wa.me/254705204854') && html.includes('wa.me/254722336386'), p);
+    assert.ok(html.includes('id="wa-chooser"') && html.includes('Choose a number'), p);
+  }
+  await db.setSetting('whatsapp_alt', '0722336386');
+  const panel = (await (await fetch(base + '/about')).text()).match(/class="wa-panel"[\s\S]*?<\/details>/)[0];
+  assert.equal(panel.match(/wa\.me/g).length, 1, 'the same number is not listed twice');
 });

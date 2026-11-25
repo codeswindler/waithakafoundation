@@ -285,6 +285,24 @@ async function applyContentFixesLocked() {
     }
     await setSetting('_fix_founder_2026_11', new Date().toISOString());
   }
+  // 6. M-Pesa giving details confirmed by the foundation. Filled as a pair, only when both are empty, so a Paybill is
+  //    never matched with someone else's account number.
+  if (!(await get("SELECT skey FROM settings WHERE skey='_fix_mpesa_2026_11'"))) {
+    const val = async (k) => String((await get('SELECT svalue FROM settings WHERE skey=?', k))?.svalue || '').trim();
+    if (!(await val('mpesa_paybill')) && !(await val('mpesa_account'))) {
+      await setSetting('mpesa_paybill', '400200');
+      await setSetting('mpesa_account', '1199386');
+    }
+    await setSetting('_fix_mpesa_2026_11', new Date().toISOString());
+  }
+  // 7. Alternative contact line (phone and WhatsApp), only where empty.
+  if (!(await get("SELECT skey FROM settings WHERE skey='_fix_phone_alt_2026_11'"))) {
+    for (const k of ['phone_alt', 'whatsapp_alt']) {
+      const cur = await get('SELECT svalue FROM settings WHERE skey=?', k);
+      if (!String(cur?.svalue || '').trim()) await setSetting(k, '+254 705 204 854');
+    }
+    await setSetting('_fix_phone_alt_2026_11', new Date().toISOString());
+  }
   // 2. The upcoming event is the 5th anniversary in December (date to be confirmed), not the Christmas placeholder.
   if (!(await get("SELECT skey FROM settings WHERE skey='_fix_anniversary_2026'"))) {
     if (!(await get('SELECT id FROM events WHERE slug=?', ANNIVERSARY.slug))) {
@@ -302,4 +320,27 @@ async function applyContentFixesLocked() {
   }
 }
 
-module.exports = { ensureAdmin, seedContent, importGallery, importEvents, importEventPhotos, applyContentFixes };
+// Photos that show elders being supported: [part, gathering date or null, photo title].
+const GIVING_PHOTOS = [
+  ['food', '2026-08-06', 'Members receiving supplies'], ['food', '2026-08-06', 'Handing out items to members'],
+  ['food', '2026-06-04', 'Members with their supplies'], ['food', '2026-05-07', 'Items handed out to members'],
+  ['food', '2022-12-21', 'Members receiving fresh greens outdoors'],
+  ['warmth', '2025-12-04', 'Members receiving clothing and blankets'], ['warmth', '2022-12-07', 'Blankets and food ready for members'],
+  ['warmth', null, 'Blankets ready for distribution'],
+  ['meals', '2026-11-07', 'Lunch served to every elder'], ['meals', '2026-11-07', 'Volunteers serving lunch'], ['meals', '2026-07-09', 'Treats shared with members'],
+  ['care', '2022-12-21', 'An elder helped along by a volunteer'], ['care', '2026-05-07', 'Greeting an elder'], ['care', '2026-11-07', 'A warm embrace'],
+];
+/** Puts the starting photos on the Giving page, once. After that the team chooses them in the admin. */
+async function assignGivingPhotos() {
+  if (await get("SELECT skey FROM settings WHERE skey='_giving_photos'")) return 0;
+  let n = 0;
+  for (const [part, date, title] of GIVING_PHOTOS) {
+    const r = await run(`UPDATE media m LEFT JOIN events e ON e.id=m.event_id SET m.giving=?
+      WHERE m.kind='image' AND m.giving='' AND m.title=? AND e.start_date <=> ?`, part, title, date);
+    n += r.affectedRows || r.changes || 0;
+  }
+  if (n) await setSetting('_giving_photos', new Date().toISOString()); // photos not imported yet: try again next start
+  return n;
+}
+
+module.exports = { assignGivingPhotos, ensureAdmin, seedContent, importGallery, importEvents, importEventPhotos, applyContentFixes };

@@ -783,3 +783,64 @@ textarea { min-height: 140px; resize: vertical; }
   .hero-counter button { width: 40px !important; height: 40px !important; }
   .hero-counter button svg { width: 18px; height: 18px; }
 }
+
+/* ---------- giving ---------- */
+.gv-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+@media (max-width: 1000px) { .gv-cards { grid-template-columns: repeat(2, 1fr); } }
+.gv-card { position: relative; display: block; aspect-ratio: 4 / 5; border-radius: var(--radius); overflow: hidden; background: var(--forest); color: #fff; text-decoration: none; box-shadow: var(--shadow); }
+.gv-card:hover { color: #fff; }
+.gv-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s; }
+.gv-card:hover img { transform: scale(1.04); }
+.gv-text { position: absolute; inset: auto 0 0 0; padding: 70px 20px 20px; background: linear-gradient(0deg, rgba(24,8,48,.94) 45%, rgba(24,8,48,0)); }
+.gv-text b { display: block; font-family: var(--serif); font-size: 1.2rem; line-height: 1.2; }
+.gv-text span { display: block; margin-top: 6px; font-size: .9rem; line-height: 1.45; color: rgba(255,255,255,.88); }
+.gv-jump { background: var(--paper); border-bottom: 1px solid var(--line); }
+.gv-jump .wrap { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 16px; padding-bottom: 16px; }
+.gv-jump a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 16px; border-radius: 999px; background: var(--forest-3); color: var(--forest); font-weight: 600; font-size: .92rem; text-decoration: none; }
+.gv-jump a.give-now { background: var(--gold); color: #23103F; }
+.gv-jump svg { width: 18px; height: 18px; }
+.gv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.gv-grid .tile { aspect-ratio: 4 / 3; }
+.gv-grid .tile img { width: 100%; height: 100%; object-fit: cover; }
+.gv-grid .tile:first-child { grid-column: span 2; grid-row: span 2; aspect-ratio: auto; }
+.gv-grid .tile .cap { opacity: 1; transform: none; }
+#food, #warmth, #meals, #care, #pay { scroll-margin-top: 90px; }
+.pay-box { color: var(--ink); }
+.pay-steps { padding-top: 16px; font-size: .95rem; color: var(--muted); }
+.pay-steps b { color: var(--forest); }
+.pay-steps ol { margin: 6px 0 0; padding-left: 1.2em; }
+@media (max-width: 760px) {
+  .gv-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .gv-grid .tile:first-child { grid-row: auto; aspect-ratio: 4 / 3; }
+  .gv-grid .tile:last-child:nth-child(even) { grid-column: span 2; }
+  .gv-grid .tile .cap { font-size: .8rem; padding: 30px 10px 10px; }
+  .gv-grid .tile .cap small { display: none; }
+}
+
+/* ---------- WhatsApp ---------- */
+.contact-list a.wa-btn { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; margin-left: 10px; padding: 6px 14px; border-radius: 999px; background: #0B7A3E; color: #fff !important; font-size: .88rem; font-weight: 600; text-decoration: none; }
+.contact-list .wa-btn svg { width: 17px; height: 17px; }
+.site-footer a.wa-mini { display: inline-grid; place-items: center; width: 36px; height: 36px; min-height: 0; padding: 0; margin-left: 6px; border-radius: 50%; background: #0B7A3E; color: #fff; vertical-align: middle; }
+.wa-mini svg { width: 18px; height: 18px; }
+.wa-float { position: fixed; right: 22px; bottom: 22px; z-index: 60; }
+.wa-float summary { list-style: none; width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; background: #0B7A3E; color: #fff; cursor: pointer; box-shadow: 0 10px 28px rgba(0,0,0,.3); }
+.wa-float summary::-webkit-details-marker { display: none; }
+.wa-float summary svg { width: 30px; height: 30px; }
+.wa-panel { position: absolute; right: 0; bottom: 74px; width: min(300px, calc(100vw - 32px)); padding: 18px; background: #fff; border-radius: 16px; box-shadow: var(--shadow-lg); border: 1px solid var(--line); }
+.wa-panel > b { font-family: var(--serif); color: var(--forest); font-size: 1.1rem; }
+.wa-panel p { margin: 2px 0 10px; font-size: .9rem; color: var(--muted); }
+.wa-panel a { display: flex; align-items: center; gap: 12px; padding: 12px; margin-top: 8px; border-radius: 12px; background: #E9F6EE; color: #075B2E; font-weight: 600; text-decoration: none; }
+.wa-panel a svg { width: 24px; height: 24px; flex: none; }
+.wa-panel small { display: block; font-weight: 500; color: var(--muted); }
+/* Phones: the button sits above the bottom action bar. */
+@media (max-width: 760px) {
+  .wa-float { right: 14px; bottom: calc(82px + env(safe-area-inset-bottom)); }
+  .wa-float summary { width: 54px; height: 54px; }
+  .wa-panel { bottom: 66px; }
+}
+@media (min-width: 1001px) and (max-width: 1120px) { .nav a { padding: 8px; font-size: .9rem; } }
+@media print { .wa-float { display: none; } }
+.menu-open .wa-float, .lb-open .wa-float { display: none; }
+/* payment numbers: plain, even digits so they are never misread */
+.pay-row b { font-family: var(--sans); font-weight: 700; font-variant-numeric: lining-nums tabular-nums; letter-spacing: .04em; }
+@media (max-width: 760px) { .contact-list a.wa-btn { margin-left: 0; margin-top: 4px; } .contact-list a[href^="tel:"] { margin-right: 10px; } }

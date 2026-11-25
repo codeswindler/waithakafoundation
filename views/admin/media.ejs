@@ -11,7 +11,7 @@
       <% events.forEach((ev) => { %><option value="<%= ev.id %>" <%= String(ev.id) === filter ? 'selected' : '' %>><%= ev.title %> · <%= h.fmtDate(ev.start_date) %></option><% }) %>
     </select><noscript><button class="btn sm">Filter</button></noscript></form>
   </div>
-  <p class="muted small">Tick <b>Show on homepage</b> to put your best shots in the homepage gallery. <b>Use as banner</b> sets the large photo at the top of the homepage.</p>
+  <p class="muted small">Tick <b>Show on homepage</b> to put your best shots in the homepage gallery. <b>Use as banner</b> sets the large photo at the top of the homepage. The <b>Giving page</b> menu puts a photo in that part of the Giving page.</p>
   <% if (!media.length) { %><p class="muted">Nothing here yet.</p><% } else { %><%- include('_media-grid', { media, back: '/admin/media' + (filter ? '?event=' + filter : ''), events }) %><% } %>
 </section>
 <%- include('_foot') %>

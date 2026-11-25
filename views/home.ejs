@@ -89,6 +89,18 @@
   </div>
 </section>
 
+<% if (giving.length) { %>
+<section class="bg-paper" id="giving">
+  <div class="wrap">
+    <div class="head-row">
+      <div class="section-head reveal"><span class="eyebrow">Giving</span><h2>How your giving supports our elders</h2><p>Real moments from our gatherings, made possible by people who gave.</p></div>
+      <a class="btn btn-gold reveal" href="/giving"><%- icon('heart') %> See giving in action</a>
+    </div>
+    <%- include('partials/giving-cards') %>
+  </div>
+</section>
+<% } %>
+
 <% if (upcoming.length) { %>
 <section>
   <div class="wrap">

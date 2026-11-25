@@ -1,0 +1,10 @@
+<% const wa = h.waLines(s); if (wa.length) { %>
+<details class="wa-float" id="wa-chooser">
+  <summary aria-label="Chat with us on WhatsApp"><%- icon('whatsapp') %></summary>
+  <div class="wa-panel">
+    <b>Chat with us on WhatsApp</b>
+    <p><%= wa.length > 1 ? 'Choose a number to message:' : 'Tap to start a chat:' %></p>
+    <% wa.forEach((l) => { %><a href="<%= l.href %>" target="_blank" rel="noopener"><%- icon('whatsapp') %><span><%= l.number %><small><%= l.label %></small></span></a><% }) %>
+  </div>
+</details>
+<% } %>

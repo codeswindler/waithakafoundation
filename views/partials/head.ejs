@@ -2,7 +2,7 @@
   const pageTitle = title ? `${title} | ${s.site_full_name}` : `${s.site_full_name} | ${s.tagline}`;
   const desc = locals.description || h.excerpt(s.hero_text, 160);
   const og = locals.ogImage || s.hero_image;
-  const nav = [['/about','About'],['/programmes','Programmes'],['/events','Events'],['/gallery','Gallery'],['/impact','Impact'],['/contact','Contact']];
+  const nav = [['/about','About'],['/programmes','Programmes'],['/events','Events'],['/gallery','Gallery'],['/impact','Impact'],['/giving','Giving'],['/contact','Contact']];
 %><!doctype html>
 <html lang="en" class="no-js">
 <head>
@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/css/site.css">
-<script type="application/ld+json"><%- JSON.stringify({ '@context': 'https://schema.org', '@type': 'NGO', name: s.site_full_name, description: h.excerpt(s.mission, 300), url: baseUrl, logo: baseUrl + '/static/img/waithaka-logo-full.png', foundingDate: s.stat_since, address: { '@type': 'PostalAddress', streetAddress: s.address, addressCountry: 'KE' }, email: s.email || undefined, telephone: s.phone || undefined }).replace(/</g, '\\u003c') %></script>
+<script type="application/ld+json"><%- JSON.stringify({ '@context': 'https://schema.org', '@type': 'NGO', name: s.site_full_name, description: h.excerpt(s.mission, 300), url: baseUrl, logo: baseUrl + '/static/img/waithaka-logo-full.png', foundingDate: s.stat_since, address: { '@type': 'PostalAddress', streetAddress: s.address, addressCountry: 'KE' }, email: s.email || undefined, telephone: [s.phone, s.phone_alt].filter(Boolean) }).replace(/</g, '\\u003c') %></script>
 </head>
 <body class="<%= locals.bodyClass || '' %>">
 <a class="skip" href="#main">Skip to content</a>

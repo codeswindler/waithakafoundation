@@ -6,6 +6,7 @@ const { all, get, run, getSettings, setSetting, DEFAULT_SETTINGS, UPLOAD_DIR } =
 const h = require('../helpers');
 const { requireAdmin, limiter } = require('../auth');
 const M = require('../media');
+const { GIVING, KEYS: GIVING_KEYS } = require('../giving');
 
 const router = express.Router();
 const loginLimit = limiter({ windowMs: 15 * 60 * 1000, max: 10 });
@@ -98,7 +99,7 @@ router.get('/events', wrap(async (req, res) => {
     FROM events e LEFT JOIN media m ON m.id=e.cover_media_id ORDER BY e.start_date DESC`);
   res.render('admin/events', { title: 'Events', upcoming: list.filter((e) => e.start_date >= t).reverse(), past: list.filter((e) => e.start_date < t) });
 }));
-router.get('/events/new', (req, res) => res.render('admin/event-form', { title: 'New event', e: { published: 1, start_date: h.today() }, media: [], errors: null }));
+router.get('/events/new', (req, res) => res.render('admin/event-form', { givingParts: GIVING, title: 'New event', e: { published: 1, start_date: h.today() }, media: [], errors: null }));
 
 function eventFromBody(b) {
   return {
@@ -137,7 +138,7 @@ const eventMedia = (id) => all('SELECT * FROM media WHERE event_id=? ORDER BY so
 router.post('/events', wrap(async (req, res) => {
   const e = eventFromBody(req.body);
   const errors = eventErrors(e);
-  if (errors.length) return res.status(400).render('admin/event-form', { title: 'New event', e, media: [], errors });
+  if (errors.length) return res.status(400).render('admin/event-form', { givingParts: GIVING, title: 'New event', e, media: [], errors });
   const { insertId: id } = await run(`INSERT INTO events(slug,title,start_date,date_tbc,start_time,end_time,venue,summary,body,achievements,attendance,published,featured)
     VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`, await uniqueSlug(e.title, e.start_date), e.title, e.start_date, e.date_tbc, e.start_time, e.end_time, e.venue, e.summary, e.body, e.achievements, e.attendance, e.published, e.featured);
   if (e.featured) await run('UPDATE events SET featured=0 WHERE id!=?', id);
@@ -147,14 +148,14 @@ router.post('/events', wrap(async (req, res) => {
 router.get('/events/:id', wrap(async (req, res, next) => {
   const e = await get('SELECT * FROM events WHERE id=?', req.params.id);
   if (!e) return next();
-  res.render('admin/event-form', { title: 'Edit event', e, media: await eventMedia(e.id), errors: null });
+  res.render('admin/event-form', { givingParts: GIVING, title: 'Edit event', e, media: await eventMedia(e.id), errors: null });
 }));
 router.post('/events/:id', wrap(async (req, res, next) => {
   const old = await get('SELECT * FROM events WHERE id=?', req.params.id);
   if (!old) return next();
   const e = { ...eventFromBody(req.body), id: old.id, slug: old.slug, sample: old.sample };
   const errors = eventErrors(e);
-  if (errors.length) return res.status(400).render('admin/event-form', { title: 'Edit event', e, media: await eventMedia(old.id), errors });
+  if (errors.length) return res.status(400).render('admin/event-form', { givingParts: GIVING, title: 'Edit event', e, media: await eventMedia(old.id), errors });
   const slug = old.title === e.title && old.start_date === e.start_date ? old.slug : await uniqueSlug(e.title, e.start_date, old.id);
   await run(`UPDATE events SET slug=?,title=?,start_date=?,date_tbc=?,start_time=?,end_time=?,venue=?,summary=?,body=?,achievements=?,attendance=?,published=?,featured=?,cover_media_id=?,sample=0,updated_at=NOW() WHERE id=?`,
     slug, e.title, e.start_date, e.date_tbc, e.start_time, e.end_time, e.venue, e.summary, e.body, e.achievements, e.attendance, e.published, e.featured, e.cover_media_id, old.id);
@@ -219,7 +220,7 @@ router.get('/media', wrap(async (req, res) => {
     all(`SELECT m.*, e.title AS event_title FROM media m LEFT JOIN events e ON e.id=m.event_id ${where} ORDER BY m.created_at DESC, m.id DESC`, ...params),
     all('SELECT id, title, start_date FROM events ORDER BY start_date DESC'),
   ]);
-  res.render('admin/media', { title: 'Photos & videos', media, events, filter: ev || '', maxMb: M.MAX_VIDEO_MB });
+  res.render('admin/media', { givingParts: GIVING, title: 'Photos & videos', media, events, filter: ev || '', maxMb: M.MAX_VIDEO_MB });
 }));
 router.post('/media/upload', M.upload.array('files', 40), checkCsrf, wrap(async (req, res) => {
   const eventId = req.body.event_id ? Number(req.body.event_id) : null;
@@ -230,9 +231,10 @@ router.post('/media/upload', M.upload.array('files', 40), checkCsrf, wrap(async 
 router.post('/media/:id', wrap(async (req, res, next) => {
   const m = await get('SELECT * FROM media WHERE id=?', req.params.id);
   if (!m) return next();
-  await run('UPDATE media SET title=?, caption=?, event_id=?, featured=?, sort=? WHERE id=?',
+  await run('UPDATE media SET title=?, caption=?, event_id=?, featured=?, sort=?, giving=? WHERE id=?',
     String(req.body.title || '').slice(0, 160), String(req.body.caption || '').slice(0, 600),
-    req.body.event_id ? Number(req.body.event_id) : null, req.body.featured ? 1 : 0, parseInt(req.body.sort, 10) || 0, m.id);
+    req.body.event_id ? Number(req.body.event_id) : null, req.body.featured ? 1 : 0, parseInt(req.body.sort, 10) || 0,
+    'giving' in req.body ? (GIVING_KEYS.includes(req.body.giving) ? req.body.giving : '') : m.giving, m.id);
   flash(req, 'ok', 'Saved.');
   res.redirect(backTo(req, '/admin/media'));
 }));

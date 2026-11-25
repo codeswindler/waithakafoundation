@@ -106,4 +106,14 @@ function endOfMonth(iso) { const { y, m } = parts(iso); return new Date(Date.UTC
 
 function isEmail(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').trim()); }
 
-module.exports = { today, fmtDate, fmtDay, fmtMon, fmtYear, weekday, fmtTime, timeRange, slugify, esc, paras, lines, money, num, token, excerpt, isEmail, safeUrl, icsFor, waNumber, srcset, smallOf, eventWhen, endOfMonth, MONTHS };
+/** WhatsApp chat link with a friendly opening message. */
+function waHref(n) { return 'https://wa.me/' + waNumber(n) + '?text=' + encodeURIComponent('Hello Waithaka Foundation, '); }
+/** The WhatsApp numbers visitors can choose from (no repeats). */
+function waLines(s) {
+  const seen = new Set();
+  return [[s.whatsapp, 'Main line'], [s.whatsapp_alt, 'Alternative line']]
+    .filter(([n]) => { const k = n && waNumber(n); if (!k || seen.has(k)) return false; seen.add(k); return true; })
+    .map(([number, label]) => ({ number, label, href: waHref(number) }));
+}
+
+module.exports = { waHref, waLines, today, fmtDate, fmtDay, fmtMon, fmtYear, weekday, fmtTime, timeRange, slugify, esc, paras, lines, money, num, token, excerpt, isEmail, safeUrl, icsFor, waNumber, srcset, smallOf, eventWhen, endOfMonth, MONTHS };

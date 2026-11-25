@@ -17,13 +17,14 @@
       </div>
       <div>
         <h4>Get involved</h4>
-        <ul><li><a href="/support#give">Give</a></li><li><a href="/support#campaign">Land campaign</a></li><li><a href="/support#form">Partner with us</a></li><li><a href="/support#form">Volunteer</a></li></ul>
+        <ul><li><a href="/giving">Giving in action</a></li><li><a href="/support#give">Ways to give</a></li><li><a href="/support#campaign">Land campaign</a></li><li><a href="/support#form">Partner with us</a></li><li><a href="/support#form">Volunteer</a></li></ul>
       </div>
       <div>
         <h4>Reach us</h4>
         <ul>
           <li><%= s.address %></li>
-          <% if (s.phone) { %><li><a href="tel:<%= s.phone.replace(/\s/g,'') %>"><%= s.phone %></a></li><% } %>
+          <% if (s.phone) { %><li><a href="tel:<%= s.phone.replace(/\s/g,'') %>"><%= s.phone %></a><% if (s.whatsapp) { %> <a class="wa-mini" href="<%= h.waHref(s.whatsapp) %>" target="_blank" rel="noopener" aria-label="WhatsApp <%= s.whatsapp %>"><%- icon('whatsapp') %></a><% } %></li><% } %>
+          <% if (s.phone_alt) { %><li><a href="tel:<%= s.phone_alt.replace(/\s/g,'') %>"><%= s.phone_alt %></a><% if (s.whatsapp_alt) { %> <a class="wa-mini" href="<%= h.waHref(s.whatsapp_alt) %>" target="_blank" rel="noopener" aria-label="WhatsApp <%= s.whatsapp_alt %>"><%- icon('whatsapp') %></a><% } %></li><% } %>
           <% if (s.email) { %><li><a href="mailto:<%= s.email %>"><%= s.email %></a></li><% } %>
           <li><a href="/contact">Send us a message →</a></li>
         </ul>
@@ -35,12 +36,13 @@
     </div>
   </div>
 </footer>
-<% const quick = s.whatsapp ? { href: 'https://wa.me/' + h.waNumber(s.whatsapp), label: 'WhatsApp', ic: 'whatsapp', ext: true } : s.phone ? { href: 'tel:' + s.phone.replace(/\s/g, ''), label: 'Call us', ic: 'phone' } : { href: '/contact', label: 'Contact', ic: 'mail' }; %>
+<% const quick = s.phone ? { href: 'tel:' + s.phone.replace(/[ ]+/g, ''), label: 'Call us', ic: 'phone' } : { href: '/contact', label: 'Contact', ic: 'mail' }; %>
 <nav class="mbar" aria-label="Quick actions">
   <a href="/events"<%- path.startsWith('/events') ? ' aria-current="page"' : '' %>><%- icon('calendar') %><span>Events</span></a>
   <a class="mbar-give" href="/support"><%- icon('heart') %><span>Give</span></a>
-  <a href="<%= quick.href %>"<%- quick.ext ? ' target="_blank" rel="noopener"' : '' %>><%- icon(quick.ic) %><span><%= quick.label %></span></a>
+  <a href="<%= quick.href %>"><%- icon(quick.ic) %><span><%= quick.label %></span></a>
 </nav>
+<%- include('whatsapp') %>
 <div class="lb" id="lightbox" role="dialog" aria-modal="true" aria-label="Media viewer" hidden>
   <span class="lb-count"></span>
   <div class="lb-stage"></div>

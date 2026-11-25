@@ -253,3 +253,14 @@
   var q = new URLSearchParams(location.search);
   if (q.get('event')) { var m = d.getElementById('message'); if (m && !m.value) m.value = 'I would like to support the event: ' + q.get('event').replace(/-/g, ' ') + '\n\n'; }
 })();
+
+/* WhatsApp number chooser */
+(function () {
+  var d = document, w = d.getElementById('wa-chooser');
+  if (!w) return;
+  var sum = w.querySelector('summary');
+  d.addEventListener('click', function (e) {
+    if (w.open && !sum.contains(e.target) && (!w.contains(e.target) || e.target.closest('a'))) w.open = false;
+  });
+  d.addEventListener('keydown', function (e) { if (e.key === 'Escape' && w.open) { w.open = false; sum.focus(); } });
+})();

@@ -109,6 +109,7 @@ async function init() {
       const r = await get('SELECT COUNT(*) AS n FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?', table, column);
       if (!Number(r.n)) await run(`ALTER TABLE ${table} ADD COLUMN ${ddl}`);
     };
+    await addColumn('media', 'giving', "giving VARCHAR(20) NOT NULL DEFAULT ''"); // which part of the Giving page shows it
     await addColumn('events', 'date_tbc', 'date_tbc TINYINT NOT NULL DEFAULT 0 AFTER start_date');
   } catch (e) { throw friendly(e, cfg); }
 }
@@ -153,7 +154,9 @@ const DEFAULT_SETTINGS = {
   currency: 'KES',
   email: '',
   phone: '',
+  phone_alt: '',
   whatsapp: '',
+  whatsapp_alt: '',
   address: 'Kabuku, Limuru Sub-County, Kiambu County, Kenya',
   mpesa_paybill: '',
   mpesa_account: '',

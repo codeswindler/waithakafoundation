@@ -16,6 +16,7 @@
       <% if (events) { %>
       <select name="event_id" aria-label="Event"><option value="">No event</option><% events.forEach((ev) => { %><option value="<%= ev.id %>" <%= m.event_id === ev.id ? 'selected' : '' %>><%= h.excerpt(ev.title, 40) %> · <%= h.fmtMon(ev.start_date) %> <%= h.fmtYear(ev.start_date) %></option><% }) %></select>
       <% } else { %><input type="hidden" name="event_id" value="<%= m.event_id || '' %>"><% } %>
+      <% if (m.kind === 'image') { %><select name="giving" aria-label="Giving page"><option value="">Not on the Giving page</option><% givingParts.forEach((g) => { %><option value="<%= g.key %>" <%= m.giving === g.key ? 'selected' : '' %>>Giving: <%= g.title %></option><% }) %></select><% } %>
       <div class="mrow">
         <label class="check sm"><input type="checkbox" name="featured" value="1" <%= m.featured ? 'checked' : '' %>> Show on homepage</label>
         <input type="number" name="sort" value="<%= m.sort %>" title="Order (lower shows first)" aria-label="Order" class="sortbox">

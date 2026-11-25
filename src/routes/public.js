@@ -4,6 +4,7 @@ const { all, get, run, getSettings } = require('../db');
 const h = require('../helpers');
 const { limiter } = require('../auth');
 const { notify } = require('../notify');
+const { givingGroups } = require('../giving');
 
 const router = express.Router();
 const formLimit = limiter({ windowMs: 60 * 60 * 1000, max: 8 });
@@ -47,7 +48,7 @@ router.get('/', wrap(async (req, res) => {
   const confirmed = (await upcoming(20)).filter((e) => !e.sample);
   const nextUp = confirmed.find((e) => e.featured) || confirmed[0] || null;
   const founder = await get("SELECT * FROM team WHERE grp='founder' ORDER BY sort, id LIMIT 1");
-  res.render('home', { title: null, founder, slides, upcoming: up, next: nextUp, past: pastList, featuredMedia, milestones, partners: partnerList, stats: st });
+  res.render('home', { title: null, giving: await givingGroups(), founder, slides, upcoming: up, next: nextUp, past: pastList, featuredMedia, milestones, partners: partnerList, stats: st });
 }));
 
 router.get('/about', wrap(async (req, res) => {
@@ -108,6 +109,11 @@ router.get('/support', wrap(async (req, res) => {
   res.render('support', { title: 'Support our work', partners: await partners(), sent: req.query.sent, kind: req.query.kind });
 }));
 
+router.get('/giving', wrap(async (req, res) => {
+  const giving = await givingGroups();
+  res.render('giving', { title: 'Giving', giving, ogImage: giving[0]?.photos[0].file, description: 'See how gifts of food, blankets, meals and care reach elders in Kabuku and Limuru, and how to give.' });
+}));
+
 router.get('/contact', (req, res) => res.render('contact', { title: 'Contact us', sent: req.query.sent, errors: null, form: {} }));
 
 // One handler for contact, volunteer and partner enquiries.
@@ -136,7 +142,7 @@ router.post(['/contact', '/support/enquiry'], wrap(async (req, res) => {
 
 router.get('/sitemap.xml', wrap(async (req, res) => {
   const base = res.locals.baseUrl;
-  const urls = ['/', '/about', '/programmes', '/events', '/gallery', '/impact', '/support', '/contact',
+  const urls = ['/', '/about', '/programmes', '/events', '/gallery', '/impact', '/giving', '/support', '/contact',
     ...(await all('SELECT slug FROM events WHERE published=1')).map((e) => `/events/${e.slug}`)];
   res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((u) => `<url><loc>${h.esc(base + u)}</loc></url>`).join('')}</urlset>`);
 }));

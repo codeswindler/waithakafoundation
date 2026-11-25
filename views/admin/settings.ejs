@@ -74,6 +74,8 @@
     <div class="fgrid">
       <% field('phone', 'Phone', { ph: '07XX XXX XXX' }) %>
       <% field('whatsapp', 'WhatsApp number', { opt: true, ph: '07XX XXX XXX' }) %>
+      <% field('phone_alt', 'Alternative phone', { opt: true, ph: '07XX XXX XXX' }) %>
+      <% field('whatsapp_alt', 'Second WhatsApp number', { opt: true, ph: '07XX XXX XXX', help: 'Visitors choose which number to chat with.' }) %>
       <% field('email', 'Email', { type: 'email' }) %>
       <% field('address', 'Location / address') %>
       <% field('notify_email', 'Send website enquiries to', { type: 'email', opt: true, help: emailReady ? 'Each new partner, volunteer or contact message is emailed here as well as saved in Messages.' : 'Email alerts also need SMTP settings on the server (see README). Messages are always saved in Admin → Messages.' }) %>
